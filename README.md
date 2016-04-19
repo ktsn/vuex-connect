@@ -48,7 +48,7 @@ const Hello = Vue.extend({
 
 /* Container
 ----------------------------------------*/
-import { connect } from '../src';
+import { connect } from 'vuex-connect';
 
 const getters = {
   message: (state) => state.message
