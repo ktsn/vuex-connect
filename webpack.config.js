@@ -17,5 +17,13 @@ module.exports = {
     loaders: [
       { test: /\.js$/, loader: 'babel-loader', exclude: /node_modules/ }
     ]
+  },
+  externals: {
+    vue: {
+      root: 'Vue',
+      commonjs2: 'vue',
+      commonjs: 'vue',
+      amd: 'vue'
+    }
   }
 };
