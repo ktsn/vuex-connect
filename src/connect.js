@@ -17,10 +17,9 @@ export function connect(getters = {}, actions = {}) {
 
       options.template = `<${name} ${getterProps.concat(actionProps).join(' ')}></${name}>`;
 
-      options.vuex = Object.assign({}, options.vuex, {
-        getters,
-        actions
-      });
+      options.vuex = options.vuex || {};
+      options.vuex.getters = getters;
+      options.vuex.actions = actions;
 
       _init.call(this, options);
     };
