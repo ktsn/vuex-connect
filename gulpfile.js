@@ -48,6 +48,16 @@ gulp.task('webpack:test', () => {
   });
 });
 
+gulp.task('webpack:test:ci', (done) => {
+  const compiler = webpack(require('./webpack.config.test'));
+
+  compiler.run((err, stats) => {
+    if (err) throw new gutil.PluginError('webpack', err);
+    gutil.log('[webpack]', stats.toString());
+    done();
+  });
+});
+
 gulp.task('testem', () => {
   const testem = new Testem();
   testem.startDev(yaml.safeLoad(fs.readFileSync(__dirname + '/testem.yml')));

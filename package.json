@@ -22,7 +22,9 @@
   "scripts": {
     "prepublish": "npm run build",
     "build": "gulp build",
-    "test": "gulp test"
+    "test": "gulp test",
+    "test:ci": "gulp webpack:test:ci && testem ci --launch Firefox,PhantomJS",
+    "lint": "gulp eslint"
   },
   "devDependencies": {
     "babel-core": "^6.7.6",
