@@ -1,4 +1,8 @@
 {
   "presets": ["es2015", "stage-3"],
-  "plugins": ["babel-plugin-espower"]
+  "env": {
+    "development": {
+      "presets": ["power-assert"]
+    }
+  }
 }
