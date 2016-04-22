@@ -1,7 +1,10 @@
 import Vue from 'vue';
 import { camelToKebab } from './utils';
 
-export function connect(getters = {}, actions = {}) {
+export function connect(getters, actions) {
+  if (getters == null) getters = {};
+  if (actions == null) actions = {};
+
   return function(name, Component) {
     const container = Vue.extend({
       name: `${name}-container`,
