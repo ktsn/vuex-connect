@@ -23,7 +23,7 @@
     "prepublish": "npm run build",
     "build": "gulp build",
     "test": "gulp test",
-    "test:ci": "gulp test:ci",
+    "test:ci": "gulp webpack:test:ci && testem ci --launch Firefox,PhantomJS",
     "lint": "gulp eslint"
   },
   "devDependencies": {

@@ -49,7 +49,9 @@ gulp.task('webpack:test', () => {
 });
 
 gulp.task('webpack:test:ci', (done) => {
-  webpack(require('./webpack.config.test'), (err, stats) => {
+  const compiler = webpack(require('./webpack.config.test'));
+
+  compiler.run((err, stats) => {
     if (err) throw new gutil.PluginError('webpack', err);
     gutil.log('[webpack]', stats.toString());
     done();
@@ -59,11 +61,6 @@ gulp.task('webpack:test:ci', (done) => {
 gulp.task('testem', () => {
   const testem = new Testem();
   testem.startDev(yaml.safeLoad(fs.readFileSync(__dirname + '/testem.yml')));
-});
-
-gulp.task('testem:ci', ['webpack:test:ci'], () => {
-  const testem = new Testem();
-  testem.startCI(yaml.safeLoad(fs.readFileSync(__dirname + '/testem.yml')));
 });
 
 gulp.task('uglify', () => {
@@ -86,5 +83,4 @@ gulp.task('build', ['clean', 'eslint'], (done) => {
 });
 
 gulp.task('test', ['webpack:test', 'testem']);
-gulp.task('test:ci', ['testem:ci']);
 gulp.task('default', ['webpack:dev']);
