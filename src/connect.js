@@ -7,7 +7,6 @@ export function connect(getters, actions) {
 
   return function(name, Component) {
     const container = Vue.extend({
-      name: `${name}-container`,
       components: {
         [name]: Component
       }
