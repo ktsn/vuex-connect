@@ -6,27 +6,19 @@ export function connect(getters, actions) {
   if (actions == null) actions = {};
 
   return function(name, Component) {
-    const container = Vue.extend({
+    const getterProps = Object.keys(getters).map(bindProp);
+    const actionProps = Object.keys(actions).map(bindProp);
+
+    return Vue.extend({
+      template: `<${name} ${getterProps.concat(actionProps).join(' ')}></${name}>`,
       components: {
         [name]: Component
+      },
+      vuex: {
+        getters,
+        actions
       }
     });
-
-    const _init = container.prototype._init;
-    container.prototype._init = function(options = {}) {
-      const getterProps = Object.keys(getters).map(bindProp);
-      const actionProps = Object.keys(actions).map(bindProp);
-
-      options.template = `<${name} ${getterProps.concat(actionProps).join(' ')}></${name}>`;
-
-      options.vuex = options.vuex || {};
-      options.vuex.getters = getters;
-      options.vuex.actions = actions;
-
-      _init.call(this, options);
-    };
-
-    return container;
   };
 }
 
