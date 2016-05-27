@@ -48,9 +48,18 @@ const actions = {
   updateInput: ({ dispatch }, event) => dispatch('UPDATE_INPUT', event.target.value)
 };
 
+const lifecycle = {
+  ready: ({ dispatch }) => {
+    fetch(URL)
+      .then(res => res.text())
+      .then(text => dispatch('UPDATE_INPUT', text));
+  };
+}
+
 const HelloContainer = connect(
   getters,
-  actions
+  actions,
+  lifecycle
 )('hello', HelloComponent);
 
 export default HelloContainer;
@@ -58,12 +67,16 @@ export default HelloContainer;
 
 ## API
 
-### `connect([getters], [actions]) -> (componentName, Component) -> WrappedComponent`
+### `connect([getters], [actions], [lifecycle]) -> (componentName, Component) -> WrappedComponent`
 
 Connects a Vue component to a Vuex store.
 
 `[getters]` and `[actions]` are same as Vuex getters and actions object that specified on a Vue component options.
 The function binds getters and actions to component's props.
+
+`[lifecycle]` is [lifecycle hooks](https://vuejs.org/api/#Options-Lifecycle-Hooks) for a Vue component.
+The lifecycle hooks receives Vuex store for their first argument.
+You can dispatch some actions in the lifecycle hooks.
 
 `connect` returns another function. The function expects a component name and the component constructor.
 The component name should be `string` and it is useful to specify the component on debug phase.

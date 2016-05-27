@@ -111,6 +111,66 @@ describe('connect', () => {
     actual.c(10);
     assert(store.state.bar === 20);
   });
+
+  it('injects all lifecycle hooks', () => {
+    let C;
+    let count = 0;
+
+    const init = (_store) => { assert(_store === void 0); count++; };
+    const created = function() { assert(this instanceof C); count++; };
+    const beforeCompile = (_store) => { assert(_store === store); count++; };
+    const compiled = () => count++;
+    const ready = () => count++;
+    const attached = () => count++;
+    const detached = () => count++;
+    const beforeDestroy = () => count++;
+    const destroyed = (_store) => { assert(_store === store); count++; };
+
+    C = connect(null, null, {
+      init, created, beforeCompile, compiled,
+      ready, attached, detached, beforeDestroy, destroyed
+    })('example', Component);
+
+    const c = mountContainer(store, C);
+    c.$remove();
+    c.$destroy();
+
+    assert(count === 9);
+  });
+
+  it('does not allow other than lifecycle hooks', () => {
+    const a = s => s.foo;
+    const b = s => s.state.bar;
+
+    const C = connect({
+      a: a
+    }, {
+      b: b
+    }, {
+      a: 1,
+      b: 1,
+      methods: {
+        c: () => 1
+      },
+      getters: {
+        a: s => s.bar,
+        d: () => 1
+      },
+      actions: {
+        b: s => s.state.foo,
+        e: () => 1
+      }
+    })('example', Component);
+
+    const c = mountContainer(store, C);
+
+    assert(c.a === a(store.state));
+    assert(c.b() === b(store));
+    assert(c.c === void 0);
+    assert(c.d === void 0);
+    assert(c.e === void 0);
+    assert(c.foo === void 0);
+  });
 });
 
 function mountContainer(store, Container) {
