@@ -152,13 +152,15 @@ describe('connect', () => {
       methods: {
         c: () => 1
       },
-      getters: {
-        a: s => s.bar,
-        d: () => 1
-      },
-      actions: {
-        b: s => s.state.foo,
-        e: () => 1
+      vuex: {
+        getters: {
+          a: s => s.bar,
+          d: () => 1
+        },
+        actions: {
+          b: s => s.state.foo,
+          e: () => 1
+        }
       }
     })('example', Component);
 
