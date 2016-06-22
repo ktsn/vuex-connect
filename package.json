@@ -51,6 +51,6 @@
   },
   "peerDependencies": {
     "vue": "^1.0.21",
-    "vuex": "^0.6.2"
+    "vuex": "^0.7.1"
   }
 }
