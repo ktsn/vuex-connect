@@ -1,6 +1,8 @@
 import Vue from 'vue';
 import { camelToKebab, assign, pick, mapValues } from './utils';
 
+const VERSION = Number(Vue.version.split('.')[0]);
+
 const LIFECYCLE_KEYS = [
   'init',
   'created',
@@ -10,7 +12,15 @@ const LIFECYCLE_KEYS = [
   'attached',
   'detached',
   'beforeDestroy',
-  'destroyed'
+  'destroyed',
+
+  // 2.0
+  'beforeMount',
+  'mounted',
+  'beforeUpdate',
+  'updated',
+  'activated',
+  'deactivated'
 ];
 
 export function connect(getters, actions, lifecycle) {
@@ -19,11 +29,9 @@ export function connect(getters, actions, lifecycle) {
   if (lifecycle == null) lifecycle = {};
 
   return function(name, Component) {
-    const getterProps = Object.keys(getters).map(bindProp);
-    const actionProps = Object.keys(actions).map(bindProp);
+    const propKeys = Object.keys(getters).concat(Object.keys(actions));
 
     const options = {
-      template: `<${name} ${getterProps.concat(actionProps).join(' ')}></${name}>`,
       components: {
         [name]: Component
       },
@@ -33,6 +41,8 @@ export function connect(getters, actions, lifecycle) {
       }
     };
 
+    insertRenderer(options, name, propKeys);
+
     const lifecycle_ = mapValues(pick(lifecycle, LIFECYCLE_KEYS), f => {
       return function() {
         f.call(this, this.$store);
@@ -41,6 +51,17 @@ export function connect(getters, actions, lifecycle) {
 
     return Vue.extend(assign(options, lifecycle_));
   };
+}
+
+function insertRenderer(options, name, propKeys) {
+  if (VERSION >= 2) {
+    options.render = function(h) {
+      return h(name, { props: pick(this, propKeys) });
+    };
+  } else {
+    const props = propKeys.map(bindProp);
+    options.template = `<${name} ${props.join(' ')}></${name}>`;
+  }
 }
 
 function bindProp(key) {

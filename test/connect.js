@@ -29,11 +29,12 @@ describe('connect', () => {
 
     Component = Vue.extend({
       props: ['a', 'b', 'c'],
-      template: `
-      <div>
-        <div id="component-prop-1">{{ a }}</div>
-        <div id="component-prop-2">{{ b }}</div>
-      </div>`
+      render(h) {
+        return h('div', null, [
+          h('div', { id: 'component-prop-1' }, this.a),
+          h('div', { id: 'component-prop-2' }, this.b)
+        ]);
+      }
     });
   });
 
@@ -49,7 +50,7 @@ describe('connect', () => {
     const container = mountContainer(store, Container);
     const actual = container.$children[0];
 
-    assert(actual.$options.name === 'test');
+    assert(actual.$options._componentTag === 'test');
   });
 
   it('binds getter functions', () => {
@@ -88,7 +89,7 @@ describe('connect', () => {
 
     assert(actual.a === 'bar');
     assert(actual.b === 8);
-    assert(actual.z === undefined); // z is not registered on props
+    assert(actual.z === void 0); // z is not registered on props
 
     store.state.foo = 'baz';
 
@@ -112,30 +113,37 @@ describe('connect', () => {
     assert(store.state.bar === 20);
   });
 
-  it('injects all lifecycle hooks', () => {
+  it('injects lifecycle hooks', (done) => {
     let C;
     let count = 0;
 
-    const init = (_store) => { assert(_store === void 0); count++; };
-    const created = function() { assert(this instanceof C); count++; };
-    const beforeCompile = (_store) => { assert(_store === store); count++; };
-    const compiled = () => count++;
-    const ready = () => count++;
-    const attached = () => count++;
-    const detached = () => count++;
-    const beforeDestroy = () => count++;
-    const destroyed = (_store) => { assert(_store === store); count++; };
+    function _assert(_store) {
+      assert(_store === store);
+      assert(this instanceof C);
+      count++;
+    }
 
+    // TODO: test activated and deactivated hooks
     C = connect(null, null, {
-      init, created, beforeCompile, compiled,
-      ready, attached, detached, beforeDestroy, destroyed
+      init: _assert,
+      created: _assert,
+      beforeDestroy: _assert,
+      destroyed: _assert,
+      beforeMount: _assert,
+      mounted: _assert,
+      beforeUpdate: _assert,
+      updated: _assert
     })('example', Component);
 
     const c = mountContainer(store, C);
-    c.$remove();
-    c.$destroy();
+    store.dispatch('UPDATE_FOO', 'foo');
+    c.$forceUpdate();
 
-    assert(count === 9);
+    Vue.nextTick(() => {
+      c.$destroy();
+      assert(count === 8);
+      done();
+    });
   });
 
   it('does not allow other than lifecycle hooks', () => {
@@ -179,9 +187,7 @@ function mountContainer(store, Container) {
   const app = new Vue({
     el: '#app',
     store,
-    components: {
-      example: Container
-    }
+    render: h => h(Container)
   });
   return app.$children[0];
 }
