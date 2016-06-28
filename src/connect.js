@@ -15,6 +15,7 @@ const LIFECYCLE_KEYS = [
   'destroyed',
 
   // 2.0
+  'beforeCreate',
   'beforeMount',
   'mounted',
   'beforeUpdate',
