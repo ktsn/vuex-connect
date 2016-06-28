@@ -125,7 +125,7 @@ describe('connect', () => {
 
     // TODO: test activated and deactivated hooks
     C = connect(null, null, {
-      init: _assert,
+      beforeCreate: _assert,
       created: _assert,
       beforeDestroy: _assert,
       destroyed: _assert,
