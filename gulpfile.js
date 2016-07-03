@@ -2,7 +2,6 @@
 const gulp = require('gulp');
 const gutil = require('gulp-util');
 const rename = require('gulp-rename');
-const eslint = require('gulp-eslint');
 const uglify = require('gulp-uglify');
 const header = require('gulp-header');
 const webpack = require('webpack');
@@ -14,13 +13,6 @@ const run = require('run-sequence');
 
 gulp.task('clean', () => {
   return del(['.tmp', 'dist']);
-});
-
-gulp.task('eslint', () => {
-  return gulp.src('src/**/*.js')
-    .pipe(eslint())
-    .pipe(eslint.format())
-    .pipe(eslint.failAfterError());
 });
 
 gulp.task('webpack', (done) => {
@@ -78,7 +70,7 @@ gulp.task('header', () => {
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('build', ['clean', 'eslint'], (done) => {
+gulp.task('build', ['clean'], (done) => {
   run('webpack', 'uglify', 'header', done);
 });
 
