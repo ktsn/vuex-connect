@@ -9,7 +9,7 @@ import Vuex from 'vuex';
 Vue.use(Vuex);
 
 describe('connect', () => {
-  let state, mutations, store, Component;
+  let state, mutations, store, options, Component;
 
   beforeEach(() => {
     setup();
@@ -27,7 +27,7 @@ describe('connect', () => {
 
     store = new Vuex.Store({ state, mutations });
 
-    Component = Vue.extend({
+    options = {
       props: ['a', 'b', 'c'],
       render(h) {
         return h('div', null, [
@@ -35,7 +35,9 @@ describe('connect', () => {
           h('div', { id: 'component-prop-2' }, this.b)
         ]);
       }
-    });
+    };
+
+    Component = Vue.extend(options);
   });
 
   afterEach(teardown);
@@ -193,6 +195,20 @@ describe('connect', () => {
     assert(c.a === 'bar'); // should not override container props
     assert(c.b === 5);
     assert(c.c === 'test');
+  });
+
+  it('accepts component options for wrapped component', () => {
+    const C = connect({
+      a: state => state.foo
+    }, {
+      c: ({ dispatch }, value) => dispatch('UPDATE_FOO', value)
+    })('example', options);
+
+    const c = mountContainer(store, C);
+
+    assert(c.a === 'bar');
+    c.c('baz');
+    assert(c.a === 'baz');
   });
 });
 
