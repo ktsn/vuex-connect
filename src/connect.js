@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { camelToKebab, assign, pick, mapValues } from './utils';
+import { camelToKebab, assign, pick, omit, mapValues } from './utils';
 
 const VERSION = Number(Vue.version.split('.')[0]);
 
@@ -31,8 +31,10 @@ export function connect(getters, actions, lifecycle) {
 
   return function(name, Component) {
     const propKeys = Object.keys(getters).concat(Object.keys(actions));
+    const containerProps = omit(Component.options.props, propKeys);
 
     const options = {
+      props: containerProps,
       components: {
         [name]: Component
       },
@@ -42,7 +44,7 @@ export function connect(getters, actions, lifecycle) {
       }
     };
 
-    insertRenderer(options, name, propKeys);
+    insertRenderer(options, name, propKeys.concat(Object.keys(containerProps)));
 
     const lifecycle_ = mapValues(pick(lifecycle, LIFECYCLE_KEYS), f => {
       return function() {
