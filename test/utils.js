@@ -1,5 +1,5 @@
 import assert from 'power-assert';
-import { camelToKebab, assign, pick, mapValues } from '../src/utils';
+import { camelToKebab, assign, pick, omit, mapValues } from '../src/utils';
 
 describe('utils', () => {
 
@@ -42,6 +42,15 @@ describe('utils', () => {
       const actual = pick(a, ['a', 'c', 'e']);
 
       assert.deepEqual(actual, { a: 1, c: 1 });
+    });
+  });
+
+  describe('omit', () => {
+    it('omits specified properties', () => {
+      const a = { a: 1, b: 1, c: 1, d: 1 };
+      const actual = omit(a, ['a', 'c', 'e']);
+
+      assert.deepEqual(actual, { b: 1, d: 1 });
     });
   });
 

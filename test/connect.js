@@ -181,13 +181,26 @@ describe('connect', () => {
     assert(c.e === void 0);
     assert(c.foo === void 0);
   });
+
+  it('passes container props to component props if no getters and actions are specified', () => {
+    const C = connect({
+      a: state => state.foo,
+      b: state => state.bar
+    })('example', Component);
+
+    const c = mountContainer(store, C, { a: 1, c: 'test' });
+
+    assert(c.a === 'bar'); // should not override container props
+    assert(c.b === 5);
+    assert(c.c === 'test');
+  });
 });
 
-function mountContainer(store, Container) {
+function mountContainer(store, Container, props) {
   const app = new Vue({
     el: '#app',
     store,
-    render: h => h(Container)
+    render: h => h(Container, { props })
   });
   return app.$children[0];
 }
