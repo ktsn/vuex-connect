@@ -31,7 +31,7 @@ export function connect(getters, actions, lifecycle) {
 
   return function(name, Component) {
     const propKeys = Object.keys(getters).concat(Object.keys(actions));
-    const containerProps = omit(Component.options.props, propKeys);
+    const containerProps = omit(getProps(Component), propKeys);
 
     const options = {
       props: containerProps,
@@ -65,6 +65,13 @@ function insertRenderer(options, name, propKeys) {
     const props = propKeys.map(bindProp);
     options.template = `<${name} ${props.join(' ')}></${name}>`;
   }
+}
+
+function getProps(Component) {
+  if (typeof Component === 'function') {
+    return Component.options.props || {};
+  }
+  return Component.props || {};
 }
 
 function bindProp(key) {
