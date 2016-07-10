@@ -23,10 +23,24 @@ export function pick(obj, keys) {
   return res;
 }
 
+export function omit(obj, keys) {
+  const res = {};
+  Object.keys(obj).forEach(key => {
+    if (!includes(keys, key)) {
+      res[key] = obj[key];
+    }
+  });
+  return res;
+}
+
 export function mapValues(obj, f) {
   const res = {};
   Object.keys(obj).forEach(key => {
     res[key] = f(obj[key], key);
   });
   return res;
+}
+
+function includes(array, item) {
+  return array.indexOf(item) > -1;
 }
