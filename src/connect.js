@@ -24,13 +24,18 @@ const LIFECYCLE_KEYS = [
   'deactivated'
 ];
 
-export function connect(getters, actions, lifecycle) {
-  if (getters == null) getters = {};
-  if (actions == null) actions = {};
-  if (lifecycle == null) lifecycle = {};
+export function connect(options = {}) {
+  const {
+    gettersToProps = {},
+    actionsToProps = {},
+    actionsToEvents = {},
+    lifecycle = {}
+  } = options;
 
   return function(name, Component) {
-    const propKeys = Object.keys(getters).concat(Object.keys(actions));
+    const propKeys = Object.keys(gettersToProps).concat(Object.keys(actionsToProps));
+    const eventKeys = Object.keys(actionsToEvents);
+
     const containerProps = omit(getProps(Component), propKeys);
 
     const options = {
@@ -39,32 +44,48 @@ export function connect(getters, actions, lifecycle) {
         [name]: Component
       },
       vuex: {
-        getters,
-        actions
+        getters: gettersToProps,
+        actions: assign({}, actionsToProps, actionsToEvents)
       }
     };
 
-    insertRenderer(options, name, propKeys.concat(Object.keys(containerProps)));
+    insertLifecycleMixin(options, lifecycle);
+    insertRenderer(options, name, propKeys.concat(Object.keys(containerProps)), eventKeys);
 
-    const lifecycle_ = mapValues(pick(lifecycle, LIFECYCLE_KEYS), f => {
-      return function() {
-        f.call(this, this.$store);
-      };
-    });
-
-    return Vue.extend(assign(options, lifecycle_));
+    return Vue.extend(options);
   };
 }
 
-function insertRenderer(options, name, propKeys) {
+function insertRenderer(options, name, propKeys, eventKeys) {
   if (VERSION >= 2) {
     options.render = function(h) {
-      return h(name, { props: pick(this, propKeys) });
+      return h(name, {
+        props: pick(this, propKeys),
+        on: pick(this, eventKeys)
+      });
     };
   } else {
     const props = propKeys.map(bindProp);
-    options.template = `<${name} ${props.join(' ')}></${name}>`;
+    options.template = `<${name} v-ref:component ${props.join(' ')}></${name}>`;
+
+    // register event listeners on the compiled hook
+    // because vue cannot recognize camelCase name on the template
+    options.compiled = function() {
+      eventKeys.forEach(key => {
+        this.$refs.component.$on(key, this[key]);
+      });
+    };
   }
+}
+
+function insertLifecycleMixin(options, lifecycle) {
+  options.mixins = [
+    mapValues(pick(lifecycle, LIFECYCLE_KEYS), f => {
+      return function boundLifecycle() {
+        f.call(this, this.$store);
+      };
+    })
+  ];
 }
 
 function getProps(Component) {

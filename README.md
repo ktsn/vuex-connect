@@ -40,41 +40,48 @@ You can bind the component and the Vuex store by vuex-connect.
 import { connect } from 'vuex-connect';
 import HelloComponent from './hello-component';
 
-const getters = {
-  message: (state) => state.message
-};
+const HelloContainer = connect({
+  gettersToProps: {
+    message: (state) => state.message
+  },
 
-const actions = {
-  updateInput: ({ dispatch }, event) => dispatch('UPDATE_INPUT', event.target.value)
-};
+  actionsToProps: {
+    updateInput: ({ dispatch }, event) => dispatch('UPDATE_INPUT', event.target.value)
+  },
 
-const lifecycle = {
-  ready: ({ dispatch }) => {
-    fetch(URL)
-      .then(res => res.text())
-      .then(text => dispatch('UPDATE_INPUT', text));
-  };
-}
-
-const HelloContainer = connect(
-  getters,
-  actions,
-  lifecycle
-)('hello', HelloComponent);
+  lifecycle: {
+    ready: ({ dispatch }) => {
+      fetch(URL)
+        .then(res => res.text())
+        .then(text => dispatch('UPDATE_INPUT', text));
+    }
+  }
+})('hello', HelloComponent);
 
 export default HelloContainer;
 ```
 
 ## API
 
-### `connect([getters], [actions], [lifecycle]) -> (componentName, Component) -> WrappedComponent`
+### `connect(options) -> (componentName, Component) -> WrappedComponent`
+
+- `options`: Object
+  - `gettersToProps`: Object of getters
+  - `actionsToProps`: Object of actions
+  - `actionsToEvents`: Object of actions
+  - `lifecycle`: Object of lifecycle hooks
+- `componentName`: string
+- `Component`: Vue component or component option
+- `WrappedComponent`: Vue component
 
 Connects a Vue component to a Vuex store.
 
-`[getters]` and `[actions]` are same as Vuex getters and actions object that specified on a Vue component options.
+`gettersToProps` and `actionsToProps` are same as Vuex getters and actions options that specified in a Vue component options.
 The function binds getters and actions to component's props.
 
-`[lifecycle]` is [lifecycle hooks](https://vuejs.org/api/#Options-Lifecycle-Hooks) for a Vue component.
+`actionsToEvents` is same as `actionsToProps` except that it is bound to component's event.
+
+`lifecycle` is [lifecycle hooks](https://vuejs.org/api/#Options-Lifecycle-Hooks) for a Vue component.
 The lifecycle hooks receives Vuex store for their first argument.
 You can dispatch some actions in the lifecycle hooks.
 
