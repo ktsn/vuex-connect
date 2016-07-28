@@ -66,8 +66,15 @@ function insertRenderer(options, name, propKeys, eventKeys) {
     };
   } else {
     const props = propKeys.map(bindProp);
-    const events = eventKeys.map(bindEvent);
-    options.template = `<${name} ${props.concat(events).join(' ')}></${name}>`;
+    options.template = `<${name} v-ref:component ${props.join(' ')}></${name}>`;
+
+    // register event listeners on the compiled hook
+    // because vue cannot recognize camelCase name on the template
+    options.compiled = function() {
+      eventKeys.forEach(key => {
+        this.$refs.component.$on(key, this[key]);
+      });
+    };
   }
 }
 
@@ -90,8 +97,4 @@ function getProps(Component) {
 
 function bindProp(key) {
   return `:${camelToKebab(key)}="${key}"`;
-}
-
-function bindEvent(key) {
-  return `@${camelToKebab(key)}="${key}"`;
 }
