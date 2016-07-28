@@ -49,15 +49,10 @@ export function connect(options = {}) {
       }
     };
 
+    insertLifecycleMixin(options, lifecycle);
     insertRenderer(options, name, propKeys.concat(Object.keys(containerProps)), eventKeys);
 
-    const lifecycle_ = mapValues(pick(lifecycle, LIFECYCLE_KEYS), f => {
-      return function boundLifecycle() {
-        f.call(this, this.$store);
-      };
-    });
-
-    return Vue.extend(assign(options, lifecycle_));
+    return Vue.extend(options);
   };
 }
 
@@ -74,6 +69,16 @@ function insertRenderer(options, name, propKeys, eventKeys) {
     const events = eventKeys.map(bindEvent);
     options.template = `<${name} ${props.concat(events).join(' ')}></${name}>`;
   }
+}
+
+function insertLifecycleMixin(options, lifecycle) {
+  options.mixins = [
+    mapValues(pick(lifecycle, LIFECYCLE_KEYS), f => {
+      return function boundLifecycle() {
+        f.call(this, this.$store);
+      };
+    })
+  ];
 }
 
 function getProps(Component) {
