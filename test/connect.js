@@ -57,8 +57,10 @@ describe('connect', () => {
 
   it('binds getter functions', () => {
     const Container = connect({
-      a: (state) => state.foo,
-      b: (state) => state.bar
+      gettersToProps: {
+        a: (state) => state.foo,
+        b: (state) => state.bar
+      }
     })('example', Component);
 
     const actual = mountContainer(store, Container);
@@ -68,8 +70,10 @@ describe('connect', () => {
   });
 
   it('binds actions', () => {
-    const Container = connect(null, {
-      c: ({ dispatch }, value) => dispatch('UPDATE_FOO', value)
+    const Container = connect({
+      actionsToProps: {
+        c: ({ dispatch }, value) => dispatch('UPDATE_FOO', value)
+      }
     })('example', Component);
 
     const actual = mountContainer(store, Container);
@@ -81,9 +85,11 @@ describe('connect', () => {
 
   it('binds getter values to component props', (done) => {
     const Container = connect({
-      a: (state) => state.foo,
-      b: (state) => state.bar + 3,
-      z: (state) => state.baz
+      gettersToProps: {
+        a: (state) => state.foo,
+        b: (state) => state.bar + 3,
+        z: (state) => state.baz
+      }
     })('example', Component);
 
     const container = mountContainer(store, Container);
@@ -103,8 +109,10 @@ describe('connect', () => {
   });
 
   it('binds actions to component props', () => {
-    const Container = connect(null, {
-      c: ({ dispatch }, value) => dispatch('UPDATE_BAR', value * 2)
+    const Container = connect({
+      actionsToProps: {
+        c: ({ dispatch }, value) => dispatch('UPDATE_BAR', value * 2)
+      }
     })('example', Component);
 
     const container = mountContainer(store, Container);
@@ -126,15 +134,17 @@ describe('connect', () => {
     }
 
     // TODO: test activated and deactivated hooks
-    C = connect(null, null, {
-      beforeCreate: _assert,
-      created: _assert,
-      beforeDestroy: _assert,
-      destroyed: _assert,
-      beforeMount: _assert,
-      mounted: _assert,
-      beforeUpdate: _assert,
-      updated: _assert
+    C = connect({
+      lifecycle: {
+        beforeCreate: _assert,
+        created: _assert,
+        beforeDestroy: _assert,
+        destroyed: _assert,
+        beforeMount: _assert,
+        mounted: _assert,
+        beforeUpdate: _assert,
+        updated: _assert
+      }
     })('example', Component);
 
     const c = mountContainer(store, C);
@@ -153,23 +163,27 @@ describe('connect', () => {
     const b = s => s.state.bar;
 
     const C = connect({
-      a: a
-    }, {
-      b: b
-    }, {
-      a: 1,
-      b: 1,
-      methods: {
-        c: () => 1
+      gettersToProps: {
+        a: a
       },
-      vuex: {
-        getters: {
-          a: s => s.bar,
-          d: () => 1
+      actionsToProps: {
+        b: b
+      },
+      lifecycle: {
+        a: 1,
+        b: 1,
+        methods: {
+          c: () => 1
         },
-        actions: {
-          b: s => s.state.foo,
-          e: () => 1
+        vuex: {
+          getters: {
+            a: s => s.bar,
+            d: () => 1
+          },
+          actions: {
+            b: s => s.state.foo,
+            e: () => 1
+          }
         }
       }
     })('example', Component);
@@ -186,8 +200,10 @@ describe('connect', () => {
 
   it('passes container props to component props if no getters and actions are specified', () => {
     const C = connect({
-      a: state => state.foo,
-      b: state => state.bar
+      gettersToProps: {
+        a: state => state.foo,
+        b: state => state.bar
+      }
     })('example', Component);
 
     const c = mountContainer(store, C, { a: 1, c: 'test' });
@@ -199,9 +215,12 @@ describe('connect', () => {
 
   it('accepts component options for wrapped component', () => {
     const C = connect({
-      a: state => state.foo
-    }, {
-      c: ({ dispatch }, value) => dispatch('UPDATE_FOO', value)
+      gettersToProps: {
+        a: state => state.foo
+      },
+      actionsToProps: {
+        c: ({ dispatch }, value) => dispatch('UPDATE_FOO', value)
+      }
     })('example', options);
 
     const c = mountContainer(store, C);

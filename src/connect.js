@@ -24,13 +24,15 @@ const LIFECYCLE_KEYS = [
   'deactivated'
 ];
 
-export function connect(getters, actions, lifecycle) {
-  if (getters == null) getters = {};
-  if (actions == null) actions = {};
-  if (lifecycle == null) lifecycle = {};
+export function connect(options = {}) {
+  const {
+    gettersToProps = {},
+    actionsToProps = {},
+    lifecycle = {}
+  } = options;
 
   return function(name, Component) {
-    const propKeys = Object.keys(getters).concat(Object.keys(actions));
+    const propKeys = Object.keys(gettersToProps).concat(Object.keys(actionsToProps));
     const containerProps = omit(getProps(Component), propKeys);
 
     const options = {
@@ -39,8 +41,8 @@ export function connect(getters, actions, lifecycle) {
         [name]: Component
       },
       vuex: {
-        getters,
-        actions
+        getters: gettersToProps,
+        actions: actionsToProps
       }
     };
 
