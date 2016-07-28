@@ -28,11 +28,14 @@ export function connect(options = {}) {
   const {
     gettersToProps = {},
     actionsToProps = {},
+    actionsToEvents = {},
     lifecycle = {}
   } = options;
 
   return function(name, Component) {
     const propKeys = Object.keys(gettersToProps).concat(Object.keys(actionsToProps));
+    const eventKeys = Object.keys(actionsToEvents);
+
     const containerProps = omit(getProps(Component), propKeys);
 
     const options = {
@@ -42,14 +45,14 @@ export function connect(options = {}) {
       },
       vuex: {
         getters: gettersToProps,
-        actions: actionsToProps
+        actions: assign({}, actionsToProps, actionsToEvents)
       }
     };
 
-    insertRenderer(options, name, propKeys.concat(Object.keys(containerProps)));
+    insertRenderer(options, name, propKeys.concat(Object.keys(containerProps)), eventKeys);
 
     const lifecycle_ = mapValues(pick(lifecycle, LIFECYCLE_KEYS), f => {
-      return function() {
+      return function boundLifecycle() {
         f.call(this, this.$store);
       };
     });
@@ -58,14 +61,18 @@ export function connect(options = {}) {
   };
 }
 
-function insertRenderer(options, name, propKeys) {
+function insertRenderer(options, name, propKeys, eventKeys) {
   if (VERSION >= 2) {
     options.render = function(h) {
-      return h(name, { props: pick(this, propKeys) });
+      return h(name, {
+        props: pick(this, propKeys),
+        on: pick(this, eventKeys)
+      });
     };
   } else {
     const props = propKeys.map(bindProp);
-    options.template = `<${name} ${props.join(' ')}></${name}>`;
+    const events = eventKeys.map(bindEvent);
+    options.template = `<${name} ${props.concat(events).join(' ')}></${name}>`;
   }
 }
 
@@ -78,4 +85,8 @@ function getProps(Component) {
 
 function bindProp(key) {
   return `:${camelToKebab(key)}="${key}"`;
+}
+
+function bindEvent(key) {
+  return `@${camelToKebab(key)}="${key}"`;
 }

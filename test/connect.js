@@ -73,6 +73,9 @@ describe('connect', () => {
     const Container = connect({
       actionsToProps: {
         c: ({ dispatch }, value) => dispatch('UPDATE_FOO', value)
+      },
+      actionsToEvents: {
+        d: ({ dispatch }, value) => dispatch('UPDATE_FOO', value)
       }
     })('example', Component);
 
@@ -81,6 +84,8 @@ describe('connect', () => {
     assert(store.state.foo === 'bar');
     actual.c('baz');
     assert(store.state.foo === 'baz');
+    actual.d('foo');
+    assert(store.state.foo === 'foo');
   });
 
   it('binds getter values to component props', (done) => {
@@ -121,6 +126,26 @@ describe('connect', () => {
     assert(store.state.bar === 5);
     actual.c(10);
     assert(store.state.bar === 20);
+  });
+
+  it('binds actions to component events', () => {
+    const Container = connect({
+      actionsToEvents: {
+        camelEvent: ({ dispatch }, value) => dispatch('UPDATE_FOO', value),
+        'kebab-event': ({ dispatch }, value) => dispatch('UPDATE_BAR', value)
+      }
+    })('example', Component);
+
+    const container = mountContainer(store, Container);
+    const actual = container.$children[0];
+
+    assert(store.state.foo === 'bar');
+    actual.$emit('camelEvent', 'baz');
+    assert(store.state.foo === 'baz');
+
+    assert(store.state.bar === 5);
+    actual.$emit('kebab-event', 10);
+    assert(store.state.bar === 10);
   });
 
   it('injects lifecycle hooks', (done) => {
