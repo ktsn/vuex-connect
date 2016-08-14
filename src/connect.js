@@ -1,5 +1,19 @@
 import Vue from 'vue';
-import { camelToKebab, assign, pick, omit, mapValues } from './utils';
+
+import {
+  mapState,
+  mapGetters,
+  mapActions,
+  mapMutations
+} from 'vuex';
+
+import {
+  camelToKebab,
+  assign,
+  pick,
+  omit,
+  mapValues
+} from './utils';
 
 const VERSION = Number(Vue.version.split('.')[0]);
 
@@ -26,15 +40,23 @@ const LIFECYCLE_KEYS = [
 
 export function connect(options = {}) {
   const {
+    stateToProps = {},
     gettersToProps = {},
     actionsToProps = {},
     actionsToEvents = {},
+    mutationsToProps = {},
+    mutationsToEvents = {},
     lifecycle = {}
   } = options;
 
   return function(name, Component) {
-    const propKeys = Object.keys(gettersToProps).concat(Object.keys(actionsToProps));
-    const eventKeys = Object.keys(actionsToEvents);
+    const propKeys = Object.keys(stateToProps)
+      .concat(Object.keys(gettersToProps))
+      .concat(Object.keys(actionsToProps))
+      .concat(Object.keys(mutationsToProps));
+
+    const eventKeys = Object.keys(actionsToEvents)
+      .concat(Object.keys(mutationsToEvents));
 
     const containerProps = omit(getProps(Component), propKeys);
 
@@ -43,10 +65,14 @@ export function connect(options = {}) {
       components: {
         [name]: Component
       },
-      vuex: {
-        getters: gettersToProps,
-        actions: assign({}, actionsToProps, actionsToEvents)
-      }
+      computed: assign({},
+        mapState(stateToProps),
+        mapGetters(gettersToProps)
+      ),
+      methods: assign({},
+        mapActions(assign({}, actionsToProps, actionsToEvents)),
+        mapMutations(assign({}, mutationsToProps, mutationsToEvents))
+      )
     };
 
     insertLifecycleMixin(options, lifecycle);

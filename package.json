@@ -45,12 +45,12 @@
     "power-assert": "^1.3.1",
     "run-sequence": "^1.1.5",
     "testem": "^1.6.0",
-    "vue": "^2.0.0-alpha.7",
-    "vuex": "^1.0.0-rc.2",
+    "vue": "^2.0.0-rc.1",
+    "vuex": "^2.0.0-rc.4",
     "webpack": "^1.13.0"
   },
   "peerDependencies": {
     "vue": "^1.0.21 || ^2.0.0-alpha.0",
-    "vuex": ">=0.6.2 <1.0.0 || ^1.0.0-rc"
+    "vuex": "^2.0.0-rc"
   }
 }
