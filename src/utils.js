@@ -4,7 +4,8 @@ export function camelToKebab(str) {
     .toLowerCase();
 }
 
-export function assign(target, ...args) {
+export function merge(...args) {
+  const target = {};
   args.forEach(obj => {
     Object.keys(obj).forEach(key => {
       target[key] = obj[key];
@@ -39,6 +40,10 @@ export function mapValues(obj, f) {
     res[key] = f(obj[key], key);
   });
   return res;
+}
+
+export function keys(...args) {
+  return Object.keys(merge(...args));
 }
 
 function includes(array, item) {

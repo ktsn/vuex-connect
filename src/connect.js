@@ -1,5 +1,20 @@
 import Vue from 'vue';
-import { camelToKebab, assign, pick, omit, mapValues } from './utils';
+
+import {
+  mapState,
+  mapGetters,
+  mapActions,
+  mapMutations
+} from 'vuex';
+
+import {
+  camelToKebab,
+  merge,
+  pick,
+  omit,
+  keys,
+  mapValues
+} from './utils';
 
 const VERSION = Number(Vue.version.split('.')[0]);
 
@@ -26,15 +41,31 @@ const LIFECYCLE_KEYS = [
 
 export function connect(options = {}) {
   const {
+    stateToProps = {},
     gettersToProps = {},
     actionsToProps = {},
     actionsToEvents = {},
+    mutationsToProps = {},
+    mutationsToEvents = {},
+    methodsToProps = {},
+    methodsToEvents = {},
     lifecycle = {}
-  } = options;
+  } = mapValues(options, normalizeOptions);
 
   return function(name, Component) {
-    const propKeys = Object.keys(gettersToProps).concat(Object.keys(actionsToProps));
-    const eventKeys = Object.keys(actionsToEvents);
+    const propKeys = keys(
+      stateToProps,
+      gettersToProps,
+      actionsToProps,
+      mutationsToProps,
+      methodsToProps
+    );
+
+    const eventKeys = keys(
+      actionsToEvents,
+      mutationsToEvents,
+      methodsToEvents
+    );
 
     const containerProps = omit(getProps(Component), propKeys);
 
@@ -43,10 +74,15 @@ export function connect(options = {}) {
       components: {
         [name]: Component
       },
-      vuex: {
-        getters: gettersToProps,
-        actions: assign({}, actionsToProps, actionsToEvents)
-      }
+      computed: merge(
+        mapState(stateToProps),
+        mapGetters(gettersToProps)
+      ),
+      methods: merge(
+        mapActions(merge(actionsToProps, actionsToEvents)),
+        mapMutations(merge(mutationsToProps, mutationsToEvents)),
+        mapValues(merge(methodsToProps, methodsToEvents), bindStore)
+      )
     };
 
     insertLifecycleMixin(options, lifecycle);
@@ -97,4 +133,19 @@ function getProps(Component) {
 
 function bindProp(key) {
   return `:${camelToKebab(key)}="${key}"`;
+}
+
+function bindStore(fn) {
+  return function boundFunctionWithStore(...args) {
+    return fn.call(this, this.$store, ...args);
+  };
+}
+
+function normalizeOptions(options) {
+  return Array.isArray(options)
+    ? options.reduce((obj, value) => {
+      obj[value] = value;
+      return obj;
+    }, {})
+    : options;
 }

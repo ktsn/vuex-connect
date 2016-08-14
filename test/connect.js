@@ -9,31 +9,34 @@ import Vuex from 'vuex';
 Vue.use(Vuex);
 
 describe('connect', () => {
-  let state, mutations, store, options, Component;
+  const TEST = 'TEST';
+  let state, getters, actions, mutations, store, options, Component;
 
   beforeEach(() => {
     setup();
 
     state = {
-      foo: 'bar',
-      bar: 5,
-      baz: true
+      foo: 'foo'
+    };
+
+    getters = {
+      foo: state => state.foo
+    };
+
+    actions = {
+      [TEST]({ commit }, value) { commit('TEST', value + value); }
     };
 
     mutations = {
-      UPDATE_FOO(state, value) { state.foo = value; },
-      UPDATE_BAR(state, value) { state.bar = value; }
+      [TEST](state, value) { state.foo = value; }
     };
 
-    store = new Vuex.Store({ state, mutations });
+    store = new Vuex.Store({ state, getters, actions, mutations });
 
     options = {
-      props: ['a', 'b', 'c'],
+      props: ['a', 'b', 'foo', TEST],
       render(h) {
-        return h('div', null, [
-          h('div', { id: 'component-prop-1' }, this.a),
-          h('div', { id: 'component-prop-2' }, this.b)
-        ]);
+        return h('div');
       }
     };
 
@@ -55,60 +58,44 @@ describe('connect', () => {
     assert(actual.$options._componentTag === 'test');
   });
 
-  it('binds getter functions', () => {
+  it('binds state mapping to component props', done => {
     const Container = connect({
-      gettersToProps: {
-        a: (state) => state.foo,
-        b: (state) => state.bar
-      }
-    })('example', Component);
-
-    const actual = mountContainer(store, Container);
-
-    assert(actual.a === 'bar');
-    assert(actual.b === 5);
-  });
-
-  it('binds actions', () => {
-    const Container = connect({
-      actionsToProps: {
-        c: ({ dispatch }, value) => dispatch('UPDATE_FOO', value)
-      },
-      actionsToEvents: {
-        d: ({ dispatch }, value) => dispatch('UPDATE_FOO', value)
-      }
-    })('example', Component);
-
-    const actual = mountContainer(store, Container);
-
-    assert(store.state.foo === 'bar');
-    actual.c('baz');
-    assert(store.state.foo === 'baz');
-    actual.d('foo');
-    assert(store.state.foo === 'foo');
-  });
-
-  it('binds getter values to component props', (done) => {
-    const Container = connect({
-      gettersToProps: {
-        a: (state) => state.foo,
-        b: (state) => state.bar + 3,
-        z: (state) => state.baz
+      stateToProps: {
+        a: (state) => state.foo
       }
     })('example', Component);
 
     const container = mountContainer(store, Container);
     const actual = container.$children[0];
 
-    assert(actual.a === 'bar');
-    assert(actual.b === 8);
-    assert(actual.z === void 0); // z is not registered on props
+    assert(actual.a === 'foo');
 
-    store.state.foo = 'baz';
+    store.state.foo = 'bar';
 
     actual.$nextTick(() => {
       // ensure the props can detect changes
-      assert(actual.a === 'baz');
+      assert(actual.a === 'bar');
+      done();
+    });
+  });
+
+  it('binds getters to component props', done => {
+    const Container = connect({
+      gettersToProps: {
+        a: 'foo'
+      }
+    })('example', Component);
+
+    const container = mountContainer(store, Container);
+    const actual = container.$children[0];
+
+    assert(actual.a === 'foo');
+
+    store.state.foo = 'bar';
+
+    actual.$nextTick(() => {
+      // ensure the props can detect changes
+      assert(actual.a === 'bar');
       done();
     });
   });
@@ -116,36 +103,129 @@ describe('connect', () => {
   it('binds actions to component props', () => {
     const Container = connect({
       actionsToProps: {
-        c: ({ dispatch }, value) => dispatch('UPDATE_BAR', value * 2)
+        a: TEST
       }
     })('example', Component);
 
     const container = mountContainer(store, Container);
     const actual = container.$children[0];
 
-    assert(store.state.bar === 5);
-    actual.c(10);
-    assert(store.state.bar === 20);
+    assert(store.state.foo === 'foo');
+    actual.a('bar');
+    assert(store.state.foo === 'barbar');
   });
 
   it('binds actions to component events', () => {
     const Container = connect({
       actionsToEvents: {
-        camelEvent: ({ dispatch }, value) => dispatch('UPDATE_FOO', value),
-        'kebab-event': ({ dispatch }, value) => dispatch('UPDATE_BAR', value)
+        camelEvent: TEST,
+        'kebab-event': TEST
       }
     })('example', Component);
 
     const container = mountContainer(store, Container);
     const actual = container.$children[0];
 
-    assert(store.state.foo === 'bar');
-    actual.$emit('camelEvent', 'baz');
-    assert(store.state.foo === 'baz');
+    assert(store.state.foo === 'foo');
+    actual.$emit('camelEvent', 'bar');
+    assert(store.state.foo === 'barbar');
 
-    assert(store.state.bar === 5);
-    actual.$emit('kebab-event', 10);
-    assert(store.state.bar === 10);
+    actual.$emit('kebab-event', 'baz');
+    assert(store.state.foo === 'bazbaz');
+  });
+
+  it('binds mutations to component props', () => {
+    const Container = connect({
+      mutationsToProps: {
+        a: TEST
+      }
+    })('example', Component);
+
+    const container = mountContainer(store, Container);
+    const actual = container.$children[0];
+
+    assert(store.state.foo === 'foo');
+    actual.a('bar');
+    assert(store.state.foo === 'bar');
+  });
+
+  it('binds mutations to component events', () => {
+    const Container = connect({
+      mutationsToEvents: {
+        camelEvent: TEST,
+        'kebab-event': TEST
+      }
+    })('example', Component);
+
+    const container = mountContainer(store, Container);
+    const actual = container.$children[0];
+
+    assert(store.state.foo === 'foo');
+    actual.$emit('camelEvent', 'bar');
+    assert(store.state.foo === 'bar');
+
+    actual.$emit('kebab-event', 'baz');
+    assert(store.state.foo === 'baz');
+  });
+
+  it('binds inline functions to component props', () => {
+    const Container = connect({
+      methodsToProps: {
+        a: (_store, value) => {
+          assert(_store === store);
+          _store.commit(TEST, value);
+        }
+      }
+    })('example', Component);
+
+    const container = mountContainer(store, Container);
+    const actual = container.$children[0];
+
+    assert(store.state.foo === 'foo');
+    actual.a('bar');
+    assert(store.state.foo === 'bar');
+  });
+
+  it('binds inline functions to component events', () => {
+    const fn = (_store, value) => {
+      assert(_store === store);
+      _store.commit(TEST, value);
+    };
+
+    const Container = connect({
+      methodsToEvents: {
+        camelEvent: fn,
+        'kebab-event': fn
+      }
+    })('example', Component);
+
+    const container = mountContainer(store, Container);
+    const actual = container.$children[0];
+
+    assert(store.state.foo === 'foo');
+    actual.$emit('camelEvent', 'bar');
+    assert(store.state.foo === 'bar');
+
+    actual.$emit('kebab-event', 'baz');
+    assert(store.state.foo === 'baz');
+  });
+
+  it('allows array style binding', done => {
+    const Container = connect({
+      gettersToProps: ['foo'],
+      mutationsToEvents: [TEST]
+    })('example', Component);
+
+    const container = mountContainer(store, Container);
+    const actual = container.$children[0];
+
+    assert(actual.foo === 'foo');
+    actual.$emit(TEST, 'bar');
+
+    Vue.nextTick(() => {
+      assert(actual.foo === 'bar');
+      done();
+    });
   });
 
   it('injects lifecycle hooks', (done) => {
@@ -173,7 +253,6 @@ describe('connect', () => {
     })('example', Component);
 
     const c = mountContainer(store, C);
-    store.dispatch('UPDATE_FOO', 'foo');
     c.$forceUpdate();
 
     Vue.nextTick(() => {
@@ -183,76 +262,34 @@ describe('connect', () => {
     });
   });
 
-  it('does not allow other than lifecycle hooks', () => {
-    const a = s => s.foo;
-    const b = s => s.state.bar;
-
-    const C = connect({
-      gettersToProps: {
-        a: a
-      },
-      actionsToProps: {
-        b: b
-      },
-      lifecycle: {
-        a: 1,
-        b: 1,
-        methods: {
-          c: () => 1
-        },
-        vuex: {
-          getters: {
-            a: s => s.bar,
-            d: () => 1
-          },
-          actions: {
-            b: s => s.state.foo,
-            e: () => 1
-          }
-        }
-      }
-    })('example', Component);
-
-    const c = mountContainer(store, C);
-
-    assert(c.a === a(store.state));
-    assert(c.b() === b(store));
-    assert(c.c === void 0);
-    assert(c.d === void 0);
-    assert(c.e === void 0);
-    assert(c.foo === void 0);
-  });
-
   it('passes container props to component props if no getters and actions are specified', () => {
     const C = connect({
       gettersToProps: {
-        a: state => state.foo,
-        b: state => state.bar
+        a: 'foo'
       }
     })('example', Component);
 
-    const c = mountContainer(store, C, { a: 1, c: 'test' });
+    const c = mountContainer(store, C, { a: 1, b: 'test' });
 
-    assert(c.a === 'bar'); // should not override container props
-    assert(c.b === 5);
-    assert(c.c === 'test');
+    assert(c.a === 'foo'); // should not override container props
+    assert(c.b === 'test');
   });
 
   it('accepts component options for wrapped component', () => {
     const C = connect({
       gettersToProps: {
-        a: state => state.foo
+        a: 'foo'
       },
       actionsToProps: {
-        c: ({ dispatch }, value) => dispatch('UPDATE_FOO', value)
+        b: TEST
       }
     })('example', options);
 
     const c = mountContainer(store, C);
 
-    assert(c.a === 'bar');
-    c.c('baz');
-    assert(c.a === 'baz');
+    assert(c.a === 'foo');
+    c.b('bar');
+    assert(c.a === 'barbar');
   });
 });
 

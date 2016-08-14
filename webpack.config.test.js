@@ -9,7 +9,7 @@ conf.debug = true;
 conf.devtool = 'source-map';
 
 conf.context = path.resolve(__dirname);
-conf.entry = glob.sync('./test/**/*.js');
+conf.entry = ['es6-promise'].concat(glob.sync('./test/**/*.js'));
 conf.output = {
   path: path.resolve(__dirname, '.tmp'),
   filename: 'test.js'
