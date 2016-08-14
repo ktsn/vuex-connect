@@ -69,8 +69,7 @@ describe('utils', () => {
     it('concats all objects\' keys', () => {
       const actual = keys({ a: 'a', b: 0 }, { b: '', c: null }, { d: false });
 
-      // does not care about duplicated keys
-      assert.deepEqual(actual, ['a', 'b', 'b', 'c', 'd']);
+      assert.deepEqual(actual, ['a', 'b', 'c', 'd']);
     });
   });
 });
