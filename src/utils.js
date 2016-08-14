@@ -41,6 +41,11 @@ export function mapValues(obj, f) {
   return res;
 }
 
+// It does not care about duplicated keys
+export function keys(...args) {
+  return args.reduce((ks, obj) => ks.concat(Object.keys(obj)), []);
+}
+
 function includes(array, item) {
   return array.indexOf(item) > -1;
 }

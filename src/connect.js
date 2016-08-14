@@ -12,6 +12,7 @@ import {
   assign,
   pick,
   omit,
+  keys,
   mapValues
 } from './utils';
 
@@ -50,13 +51,17 @@ export function connect(options = {}) {
   } = options;
 
   return function(name, Component) {
-    const propKeys = Object.keys(stateToProps)
-      .concat(Object.keys(gettersToProps))
-      .concat(Object.keys(actionsToProps))
-      .concat(Object.keys(mutationsToProps));
+    const propKeys = keys(
+      stateToProps,
+      gettersToProps,
+      actionsToProps,
+      mutationsToProps
+    );
 
-    const eventKeys = Object.keys(actionsToEvents)
-      .concat(Object.keys(mutationsToEvents));
+    const eventKeys = keys(
+      actionsToEvents,
+      mutationsToEvents
+    );
 
     const containerProps = omit(getProps(Component), propKeys);
 

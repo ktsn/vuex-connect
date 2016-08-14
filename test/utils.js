@@ -1,5 +1,5 @@
 import assert from 'power-assert';
-import { camelToKebab, assign, pick, omit, mapValues } from '../src/utils';
+import { camelToKebab, assign, pick, omit, mapValues, keys } from '../src/utils';
 
 describe('utils', () => {
 
@@ -61,6 +61,15 @@ describe('utils', () => {
       const actual = mapValues(a, f);
 
       assert.deepEqual(actual, { a: 2, b: 3, c: 4 });
+    });
+  });
+
+  describe('keys', () => {
+    it('concats all objects\' keys', () => {
+      const actual = keys({ a: 'a', b: 0 }, { b: '', c: null }, { d: false });
+
+      // does not care about duplicated keys
+      assert.deepEqual(actual, ['a', 'b', 'b', 'c', 'd']);
     });
   });
 });
