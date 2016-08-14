@@ -1,5 +1,5 @@
 import assert from 'power-assert';
-import { camelToKebab, assign, pick, omit, mapValues, keys } from '../src/utils';
+import { camelToKebab, merge, pick, omit, mapValues, keys } from '../src/utils';
 
 describe('utils', () => {
 
@@ -21,18 +21,19 @@ describe('utils', () => {
     });
   });
 
-  describe('assign', () => {
-    it('extends the first argument by latter arguments', () => {
+  describe('merge', () => {
+    it('merges given objects and should not mutate any objects', () => {
       const a = { a: 1, b: 1 };
-      const actual = assign(a, { a: 2, c: 1 }, { d: 1 }, { c: 2 });
+      const actual = merge(a, { a: 2, c: 1 }, { d: 1 }, { c: 2 });
 
-      assert.deepEqual(a, {
+      assert.deepEqual(actual, {
         a: 2,
         b: 1,
         c: 2,
         d: 1
       });
-      assert(a === actual);
+      assert.deepEqual(a, { a: 1, b: 1 }); // should not mutate
+      assert(a !== actual); // should create new object
     });
   });
 

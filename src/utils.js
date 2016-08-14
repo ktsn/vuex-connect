@@ -4,7 +4,8 @@ export function camelToKebab(str) {
     .toLowerCase();
 }
 
-export function assign(target, ...args) {
+export function merge(...args) {
+  const target = {};
   args.forEach(obj => {
     Object.keys(obj).forEach(key => {
       target[key] = obj[key];

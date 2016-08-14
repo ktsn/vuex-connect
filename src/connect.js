@@ -9,7 +9,7 @@ import {
 
 import {
   camelToKebab,
-  assign,
+  merge,
   pick,
   omit,
   keys,
@@ -74,14 +74,14 @@ export function connect(options = {}) {
       components: {
         [name]: Component
       },
-      computed: assign({},
+      computed: merge(
         mapState(stateToProps),
         mapGetters(gettersToProps)
       ),
-      methods: assign({},
-        mapActions(assign({}, actionsToProps, actionsToEvents)),
-        mapMutations(assign({}, mutationsToProps, mutationsToEvents)),
-        mapValues(assign({}, methodsToProps, methodsToEvents), bindStore)
+      methods: merge(
+        mapActions(merge(actionsToProps, actionsToEvents)),
+        mapMutations(merge(mutationsToProps, mutationsToEvents)),
+        mapValues(merge(methodsToProps, methodsToEvents), bindStore)
       )
     };
 
