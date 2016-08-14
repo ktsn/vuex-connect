@@ -47,6 +47,8 @@ export function connect(options = {}) {
     actionsToEvents = {},
     mutationsToProps = {},
     mutationsToEvents = {},
+    methodsToProps = {},
+    methodsToEvents = {},
     lifecycle = {}
   } = options;
 
@@ -55,12 +57,14 @@ export function connect(options = {}) {
       stateToProps,
       gettersToProps,
       actionsToProps,
-      mutationsToProps
+      mutationsToProps,
+      methodsToProps
     );
 
     const eventKeys = keys(
       actionsToEvents,
-      mutationsToEvents
+      mutationsToEvents,
+      methodsToEvents
     );
 
     const containerProps = omit(getProps(Component), propKeys);
@@ -76,7 +80,8 @@ export function connect(options = {}) {
       ),
       methods: assign({},
         mapActions(assign({}, actionsToProps, actionsToEvents)),
-        mapMutations(assign({}, mutationsToProps, mutationsToEvents))
+        mapMutations(assign({}, mutationsToProps, mutationsToEvents)),
+        mapValues(assign({}, methodsToProps, methodsToEvents), bindStore)
       )
     };
 
@@ -128,4 +133,10 @@ function getProps(Component) {
 
 function bindProp(key) {
   return `:${camelToKebab(key)}="${key}"`;
+}
+
+function bindStore(fn) {
+  return function boundFunctionWithStore(...args) {
+    return fn.call(this, this.$store, ...args);
+  };
 }

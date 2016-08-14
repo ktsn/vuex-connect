@@ -168,6 +168,48 @@ describe('connect', () => {
     assert(store.state.foo === 'baz');
   });
 
+  it('binds inline functions to component props', () => {
+    const Container = connect({
+      methodsToProps: {
+        a: (_store, value) => {
+          assert(_store === store);
+          _store.commit(TEST, value);
+        }
+      }
+    })('example', Component);
+
+    const container = mountContainer(store, Container);
+    const actual = container.$children[0];
+
+    assert(store.state.foo === 'foo');
+    actual.a('bar');
+    assert(store.state.foo === 'bar');
+  });
+
+  it('binds inline functions to component events', () => {
+    const fn = (_store, value) => {
+      assert(_store === store);
+      _store.commit(TEST, value);
+    };
+
+    const Container = connect({
+      methodsToEvents: {
+        camelEvent: fn,
+        'kebab-event': fn
+      }
+    })('example', Component);
+
+    const container = mountContainer(store, Container);
+    const actual = container.$children[0];
+    
+    assert(store.state.foo === 'foo');
+    actual.$emit('camelEvent', 'bar');
+    assert(store.state.foo === 'bar');
+
+    actual.$emit('kebab-event', 'baz');
+    assert(store.state.foo === 'baz');
+  });
+
   it('injects lifecycle hooks', (done) => {
     let C;
     let count = 0;
