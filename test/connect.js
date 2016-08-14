@@ -34,7 +34,7 @@ describe('connect', () => {
     store = new Vuex.Store({ state, getters, actions, mutations });
 
     options = {
-      props: ['a', 'b'],
+      props: ['a', 'b', 'foo', TEST],
       render(h) {
         return h('div');
       }
@@ -201,13 +201,31 @@ describe('connect', () => {
 
     const container = mountContainer(store, Container);
     const actual = container.$children[0];
-    
+
     assert(store.state.foo === 'foo');
     actual.$emit('camelEvent', 'bar');
     assert(store.state.foo === 'bar');
 
     actual.$emit('kebab-event', 'baz');
     assert(store.state.foo === 'baz');
+  });
+
+  it('allows array style binding', done => {
+    const Container = connect({
+      gettersToProps: ['foo'],
+      mutationsToEvents: [TEST]
+    })('example', Component);
+
+    const container = mountContainer(store, Container);
+    const actual = container.$children[0];
+
+    assert(actual.foo === 'foo');
+    actual.$emit(TEST, 'bar');
+
+    Vue.nextTick(() => {
+      assert(actual.foo === 'bar');
+      done();
+    });
   });
 
   it('injects lifecycle hooks', (done) => {

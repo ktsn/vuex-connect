@@ -50,7 +50,7 @@ export function connect(options = {}) {
     methodsToProps = {},
     methodsToEvents = {},
     lifecycle = {}
-  } = options;
+  } = mapValues(options, normalizeOptions);
 
   return function(name, Component) {
     const propKeys = keys(
@@ -139,4 +139,13 @@ function bindStore(fn) {
   return function boundFunctionWithStore(...args) {
     return fn.call(this, this.$store, ...args);
   };
+}
+
+function normalizeOptions(options) {
+  return Array.isArray(options)
+    ? options.reduce((obj, value) => {
+      obj[value] = value;
+      return obj;
+    }, {})
+    : options;
 }
