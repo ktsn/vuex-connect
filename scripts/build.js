@@ -1,3 +1,4 @@
+const fs = require('fs')
 const rollup = require('rollup').rollup
 const babel = require('rollup-plugin-babel')
 const replace = require('rollup-plugin-replace')
@@ -32,9 +33,8 @@ const config = {
 
 rollup(config)
   .then(bundle => {
-    return bundle.write({
+    return write(bundle, `dist/${meta.name}.common.js`, {
       format: 'cjs',
-      dest: `dist/${meta.name}.common.js`,
       banner,
       globals
     })
@@ -44,9 +44,8 @@ rollup(config)
       'process.env.NODE_ENV': JSON.stringify('development')
     })
   ])))
-  .then(bundle => bundle.write({
+  .then(bundle => write(bundle, `dist/${meta.name}.js`, {
     format: 'umd',
-    dest: `dist/${meta.name}.js`,
     banner,
     moduleName,
     globals
@@ -67,9 +66,8 @@ rollup(config)
       }
     })
   ])))
-  .then(bundle => bundle.write({
+  .then(bundle => write(bundle, `dist/${meta.name}.min.js`, {
     format: 'umd',
-    dest: `dist/${meta.name}.min.js`,
     banner,
     moduleName,
     globals
@@ -82,4 +80,23 @@ function addPlugins(config, plugins) {
   return Object.assign({}, config, {
     plugins: config.plugins.concat(plugins)
   })
+}
+
+function write(bundle, dest, config) {
+  const code = bundle.generate(config).code
+  return new Promise((resolve, reject) => {
+    fs.writeFile(dest, code, error => {
+      if (error) return reject(error)
+      console.log(green(dest) + ' ' + size(code))
+      resolve()
+    })
+  })
+}
+
+function green(str) {
+  return `\x1b[32m${str}\x1b[0m`
+}
+
+function size(str) {
+  return (str.length / 1024).toFixed(2) + 'kb'
 }
