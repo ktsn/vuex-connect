@@ -1,8 +1,10 @@
 {
-  "presets": ["es2015", "stage-3"],
   "env": {
     "development": {
-      "presets": ["power-assert"]
+      "presets": ["es2015", "power-assert"]
+    },
+    "production": {
+      "presets": ["es2015-rollup"]
     }
   }
 }
