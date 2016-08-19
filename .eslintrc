@@ -20,5 +20,5 @@
     camelcase: [1, {properties: never}]
     indent: [1, 2]
     quotes: [1, single]
-    semi: [2, always]
+    semi: [2, never]
     strict: [2, global]

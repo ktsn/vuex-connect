@@ -1,5 +1,5 @@
-const path = require('path');
-const glob = require('glob');
+const path = require('path')
+const glob = require('glob')
 
 module.exports = {
   entry: ['es6-promise'].concat(glob.sync(path.resolve(__dirname, '../test/**/*.js'))),
@@ -18,4 +18,4 @@ module.exports = {
     ]
   },
   devtool: 'source-map'
-};
+}

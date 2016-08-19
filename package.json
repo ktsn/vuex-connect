@@ -25,7 +25,7 @@
     "build": "cross-env NODE_ENV=production node scripts/build.js",
     "build:test": "webpack --config scripts/webpack.config.test.js",
     "watch:test": "webpack -w --config scripts/webpack.config.test.js",
-    "lint": "eslint \"@(src|test|scripts)/**/*.js\"",
+    "lint": "eslint --fix \"@(src|test|scripts)/**/*.js\"",
     "testem": "testem",
     "testem:ci": "testem ci --launch PhantomJS",
     "test": "run-p watch:test testem",
