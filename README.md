@@ -3,7 +3,7 @@
 [![npm version](https://badge.fury.io/js/vuex-connect.svg)](https://badge.fury.io/js/vuex-connect)
 [![Build Status](https://travis-ci.org/ktsn/vuex-connect.svg?branch=travis)](https://travis-ci.org/ktsn/vuex-connect)
 
-> vuex-connect v1.x no longer supports Vuex <= v1.x. If you want to use with Vuex v2.x, please use vuex-connect v0.x
+> vuex-connect v1 no longer supports Vuex <= v1. If you want to use with Vuex v2, please use vuex-connect v0.x
 
 A binding utility for a Vue component and a Vuex store.  
 Inspired by [react-redux](https://github.com/reactjs/react-redux)'s `connect` function.
