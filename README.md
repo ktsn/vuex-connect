@@ -3,90 +3,131 @@
 [![npm version](https://badge.fury.io/js/vuex-connect.svg)](https://badge.fury.io/js/vuex-connect)
 [![Build Status](https://travis-ci.org/ktsn/vuex-connect.svg?branch=travis)](https://travis-ci.org/ktsn/vuex-connect)
 
+> vuex-connect v1.x no longer supports Vuex <= v1.x. If you want to use with Vuex v2.x, please use vuex-connect v0.x
+
 A binding utility for a Vue component and a Vuex store.  
 Inspired by [react-redux](https://github.com/reactjs/react-redux)'s `connect` function.
 
 ## Example
 
-First, you should create a Vue component.
+First, you should create a Vue component. The component should communicate a parent component by using props and events.
 
 ```js
-const HelloComponent = Vue.extend({
+// hello-component.js
+export default {
   props: {
     message: {
       type: String,
       required: true
-    },
-    updateInput: {
-      type: Function,
-      required: true
+    }
+  },
+  methods: {
+    updateMessage(event) {
+      this.$emit('update', event.target.value)
     }
   },
   template: `
   <div>
     <p>{{ message }}</p>
-    <input type="text" :value="message" @input="updateInput">
+    <input type="text" :value="message" @input="updateMessage">
   </div>
   `
-});
-
-export default HelloComponent;
+}
 ```
 
 You can bind the component and the Vuex store by vuex-connect.  
 `connect` function wraps the component and create a new wrapper component.
 
 ```js
-import { connect } from 'vuex-connect';
-import HelloComponent from './hello-component';
+import { connect } from 'vuex-connect'
+import HelloComponent from './hello-component'
 
-const HelloContainer = connect({
-  gettersToProps: {
-    message: (state) => state.message
+export default connect({
+  stateToProps: {
+    message: state => state.message
   },
 
-  actionsToProps: {
-    updateInput: ({ dispatch }, event) => dispatch('UPDATE_INPUT', event.target.value)
+  methodsToEvents: {
+    update: ({ commit }, value) => commit('UPDATE_INPUT', value)
   },
 
   lifecycle: {
-    ready: ({ dispatch }) => {
+    ready: ({ commit }) => {
       fetch(URL)
         .then(res => res.text())
-        .then(text => dispatch('UPDATE_INPUT', text));
+        .then(value => commit('UPDATE_INPUT', value));
     }
   }
-})('hello', HelloComponent);
+})('hello', HelloComponent)
+```
 
-export default HelloContainer;
+You can use getters, actions and mutations if you define them in your store.
+
+```js
+import { connect } from 'vuex-connect'
+import HelloComponent from './hello-component'
+
+export default connect({
+  gettersToProps: {
+    message: 'inputMessage' // 'prop name': 'getter name'
+  },
+
+  mutationsToEvents: {
+    update: 'UPDATE_INPUT' // 'event name': 'mutation type'
+  },
+
+  lifecycle: {
+    ready: store => store.dispatch('FETCH_INPUT', URL)
+  }
+})('hello', HelloComponent)
 ```
 
 ## API
 
-### `connect(options) -> (componentName, Component) -> WrappedComponent`
+### `connect(options) -> (componentName, Component) -> WrapperComponent`
 
 - `options`: Object
-  - `gettersToProps`: Object of getters
-  - `actionsToProps`: Object of actions
-  - `actionsToEvents`: Object of actions
-  - `lifecycle`: Object of lifecycle hooks
+  - `stateToProps`
+  - `gettersToProps`
+  - `actionsToProps`
+  - `actionsToEvents`
+  - `mutationsToProps`
+  - `mutationsToEvents`
+  - `methodsToProps`
+  - `methodsToEvents`
+  - `lifecycle`
 - `componentName`: string
 - `Component`: Vue component or component option
-- `WrappedComponent`: Vue component
+- `WrapperComponent`: Vue component
 
 Connects a Vue component to a Vuex store.
 
-`gettersToProps` and `actionsToProps` are same as Vuex getters and actions options that specified in a Vue component options.
-The function binds getters and actions to component's props.
+`stateToProps`, `gettersToProps`, `actionsTo(Props|Events)` and `mutationsTo(Props|Events)` have same interface of Vuex's `mapState`, `mapGetters`, `mapActions` and `mapMutations`. In addition, you can define inline methods by using `methodsTo(Props|Events)`.
 
-`actionsToEvents` is same as `actionsToProps` except that it is bound to component's event.
+The options suffixed by `Props` indicate they will be pass to the wrapped component's props. For example, following option retrieve a store state via `inputMessage` getter and pass it to `message` prop of the wrapped component.
+
+```js
+connect({
+  gettersToProps: {
+    message: 'inputMessage'
+  }
+})
+```
+
+The options suffixed by `Events` indicate they will listen the wrapped component's events. For example, following option observes the `update` event of wrapped component and if it is emitted, `UPDATE_INPUT` mutation is committed.
+
+```js
+connect({
+  mutationsToEvents: {
+    update: 'UPDATE_INPUT'
+  }
+})
+```
 
 `lifecycle` is [lifecycle hooks](https://vuejs.org/api/#Options-Lifecycle-Hooks) for a Vue component.
-The lifecycle hooks receives Vuex store for their first argument.
-You can dispatch some actions in the lifecycle hooks.
+The lifecycle hooks receives Vuex store for their first argument. You can dispatch some actions or mutations in the lifecycle hooks.
 
-`connect` returns another function. The function expects a component name and the component constructor.
-The component name should be `string` and it is useful to specify the component on debug phase.
+`connect` returns another function. The function expects a component name and the component constructor. The component name should be `string` and it is useful to specify the component on debug phase.
 
 ## License
 
