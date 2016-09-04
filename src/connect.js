@@ -53,6 +53,11 @@ export function connect(options = {}) {
   } = mapValues(options, normalizeOptions)
 
   return function(name, Component) {
+    if (typeof name !== 'string') {
+      Component = name
+      name = getOptions(Component).name || 'wrapped-anonymous-component'
+    }
+
     const propKeys = keys(
       stateToProps,
       gettersToProps,
@@ -129,6 +134,13 @@ function getProps(Component) {
     return Component.options.props || {}
   }
   return Component.props || {}
+}
+
+function getOptions(Component) {
+  if (typeof Component === 'function') {
+    return Component.options
+  }
+  return Component
 }
 
 function bindProp(key) {
