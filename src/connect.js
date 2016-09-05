@@ -53,6 +53,11 @@ export function connect(options = {}) {
   } = mapValues(options, normalizeOptions)
 
   return function(name, Component) {
+    if (typeof name !== 'string') {
+      Component = name
+      name = getOptions(Component).name || 'wrapped-anonymous-component'
+    }
+
     const propKeys = keys(
       stateToProps,
       gettersToProps,
@@ -67,7 +72,7 @@ export function connect(options = {}) {
       methodsToEvents
     )
 
-    const containerProps = omit(getProps(Component), propKeys)
+    const containerProps = omit(getOptions(Component).props || {}, propKeys)
 
     const options = {
       props: containerProps,
@@ -124,11 +129,11 @@ function insertLifecycleMixin(options, lifecycle) {
   ]
 }
 
-function getProps(Component) {
+function getOptions(Component) {
   if (typeof Component === 'function') {
-    return Component.options.props || {}
+    return Component.options
   }
-  return Component.props || {}
+  return Component
 }
 
 function bindProp(key) {

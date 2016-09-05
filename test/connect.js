@@ -58,6 +58,23 @@ describe('connect', () => {
     assert(actual.$options._componentTag === 'test')
   })
 
+  it('sets registered name in options of component', () => {
+    const Component = { name: 'test', render: h => h() }
+    const Container = connect()(Component)
+    const container = mountContainer(store, Container)
+    const actual = container.$children[0]
+
+    assert(actual.$options._componentTag === 'test')
+  })
+
+  it('register as anonymus component if name option is not specified', () => {
+    const Container = connect()(Component)
+    const container = mountContainer(store, Container)
+    const actual = container.$children[0]
+
+    assert(actual.$options._componentTag === 'wrapped-anonymous-component')
+  })
+
   it('binds state mapping to component props', done => {
     const Container = connect({
       stateToProps: {
