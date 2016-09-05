@@ -235,35 +235,60 @@ describe('connect', () => {
 
   it('injects lifecycle hooks', (done) => {
     let C
-    let count = 0
 
-    function _assert(_store) {
-      assert(_store === store)
-      assert(this instanceof C)
-      count++
+    const counts = {}
+    const lifecycle = {}
+
+    function _assert(name) {
+      return function (_store) {
+        assert(_store === store)
+        assert(this instanceof C)
+        counts[name] += 1
+      }
     }
 
-    // TODO: test activated and deactivated hooks
+    [
+      'beforeCreate',
+      'created',
+      'beforeDestroy',
+      'destroyed',
+      'beforeMount',
+      'mounted',
+      'beforeUpdate',
+      'updated',
+      'activated',
+      'deactivated'
+    ].forEach(key => {
+      counts[key] = 0
+      lifecycle[key] = _assert(key)
+    })
+
     C = connect({
-      lifecycle: {
-        beforeCreate: _assert,
-        created: _assert,
-        beforeDestroy: _assert,
-        destroyed: _assert,
-        beforeMount: _assert,
-        mounted: _assert,
-        beforeUpdate: _assert,
-        updated: _assert
-      }
+      lifecycle
     })('example', Component)
 
-    const { container } = mountContainer(store, C)
+    const { root, container } = mountContainer(store, C)
     container.$forceUpdate()
 
     Vue.nextTick(() => {
-      container.$destroy()
-      assert(count === 8)
-      done()
+      root.show = false
+
+      Vue.nextTick(() => {
+        container.$destroy()
+        assert.deepStrictEqual(counts, {
+          beforeCreate: 1,
+          created: 1,
+          beforeDestroy: 1,
+          destroyed: 1,
+          beforeMount: 1,
+          mounted: 1,
+          beforeUpdate: 1,
+          updated: 1,
+          activated: 1,
+          deactivated: 1
+        })
+        done()
+      })
     })
   })
 
