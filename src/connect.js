@@ -72,7 +72,7 @@ export function connect(options = {}) {
       methodsToEvents
     )
 
-    const containerProps = omit(getProps(Component), propKeys)
+    const containerProps = omit(getOptions(Component).props || {}, propKeys)
 
     const options = {
       props: containerProps,
@@ -127,13 +127,6 @@ function insertLifecycleMixin(options, lifecycle) {
       }
     })
   ]
-}
-
-function getProps(Component) {
-  if (typeof Component === 'function') {
-    return Component.options.props || {}
-  }
-  return Component.props || {}
 }
 
 function getOptions(Component) {
