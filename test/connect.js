@@ -52,27 +52,24 @@ describe('connect', () => {
 
   it('sets name to given component', () => {
     const Container = connect()('test', Component)
-    const container = mountContainer(store, Container)
-    const actual = container.$children[0]
+    const { wrapped } = mountContainer(store, Container)
 
-    assert(actual.$options._componentTag === 'test')
+    assert(wrapped.$options._componentTag === 'test')
   })
 
   it('sets registered name in options of component', () => {
     const Component = { name: 'test', render: h => h() }
     const Container = connect()(Component)
-    const container = mountContainer(store, Container)
-    const actual = container.$children[0]
+    const { wrapped } = mountContainer(store, Container)
 
-    assert(actual.$options._componentTag === 'test')
+    assert(wrapped.$options._componentTag === 'test')
   })
 
   it('register as anonymus component if name option is not specified', () => {
     const Container = connect()(Component)
-    const container = mountContainer(store, Container)
-    const actual = container.$children[0]
+    const { wrapped } = mountContainer(store, Container)
 
-    assert(actual.$options._componentTag === 'wrapped-anonymous-component')
+    assert(wrapped.$options._componentTag === 'wrapped-anonymous-component')
   })
 
   it('binds state mapping to component props', done => {
@@ -82,16 +79,15 @@ describe('connect', () => {
       }
     })('example', Component)
 
-    const container = mountContainer(store, Container)
-    const actual = container.$children[0]
+    const { wrapped } = mountContainer(store, Container)
 
-    assert(actual.a === 'foo')
+    assert(wrapped.a === 'foo')
 
     store.state.foo = 'bar'
 
-    actual.$nextTick(() => {
+    wrapped.$nextTick(() => {
       // ensure the props can detect changes
-      assert(actual.a === 'bar')
+      assert(wrapped.a === 'bar')
       done()
     })
   })
@@ -103,16 +99,15 @@ describe('connect', () => {
       }
     })('example', Component)
 
-    const container = mountContainer(store, Container)
-    const actual = container.$children[0]
+    const { wrapped } = mountContainer(store, Container)
 
-    assert(actual.a === 'foo')
+    assert(wrapped.a === 'foo')
 
     store.state.foo = 'bar'
 
-    actual.$nextTick(() => {
+    wrapped.$nextTick(() => {
       // ensure the props can detect changes
-      assert(actual.a === 'bar')
+      assert(wrapped.a === 'bar')
       done()
     })
   })
@@ -124,11 +119,10 @@ describe('connect', () => {
       }
     })('example', Component)
 
-    const container = mountContainer(store, Container)
-    const actual = container.$children[0]
+    const { wrapped } = mountContainer(store, Container)
 
     assert(store.state.foo === 'foo')
-    actual.a('bar')
+    wrapped.a('bar')
     assert(store.state.foo === 'barbar')
   })
 
@@ -140,14 +134,13 @@ describe('connect', () => {
       }
     })('example', Component)
 
-    const container = mountContainer(store, Container)
-    const actual = container.$children[0]
+    const { wrapped } = mountContainer(store, Container)
 
     assert(store.state.foo === 'foo')
-    actual.$emit('camelEvent', 'bar')
+    wrapped.$emit('camelEvent', 'bar')
     assert(store.state.foo === 'barbar')
 
-    actual.$emit('kebab-event', 'baz')
+    wrapped.$emit('kebab-event', 'baz')
     assert(store.state.foo === 'bazbaz')
   })
 
@@ -158,11 +151,10 @@ describe('connect', () => {
       }
     })('example', Component)
 
-    const container = mountContainer(store, Container)
-    const actual = container.$children[0]
+    const { wrapped } = mountContainer(store, Container)
 
     assert(store.state.foo === 'foo')
-    actual.a('bar')
+    wrapped.a('bar')
     assert(store.state.foo === 'bar')
   })
 
@@ -174,14 +166,13 @@ describe('connect', () => {
       }
     })('example', Component)
 
-    const container = mountContainer(store, Container)
-    const actual = container.$children[0]
+    const { wrapped } = mountContainer(store, Container)
 
     assert(store.state.foo === 'foo')
-    actual.$emit('camelEvent', 'bar')
+    wrapped.$emit('camelEvent', 'bar')
     assert(store.state.foo === 'bar')
 
-    actual.$emit('kebab-event', 'baz')
+    wrapped.$emit('kebab-event', 'baz')
     assert(store.state.foo === 'baz')
   })
 
@@ -195,11 +186,10 @@ describe('connect', () => {
       }
     })('example', Component)
 
-    const container = mountContainer(store, Container)
-    const actual = container.$children[0]
+    const { wrapped } = mountContainer(store, Container)
 
     assert(store.state.foo === 'foo')
-    actual.a('bar')
+    wrapped.a('bar')
     assert(store.state.foo === 'bar')
   })
 
@@ -216,14 +206,13 @@ describe('connect', () => {
       }
     })('example', Component)
 
-    const container = mountContainer(store, Container)
-    const actual = container.$children[0]
+    const { wrapped } = mountContainer(store, Container)
 
     assert(store.state.foo === 'foo')
-    actual.$emit('camelEvent', 'bar')
+    wrapped.$emit('camelEvent', 'bar')
     assert(store.state.foo === 'bar')
 
-    actual.$emit('kebab-event', 'baz')
+    wrapped.$emit('kebab-event', 'baz')
     assert(store.state.foo === 'baz')
   })
 
@@ -233,14 +222,13 @@ describe('connect', () => {
       mutationsToEvents: [TEST]
     })('example', Component)
 
-    const container = mountContainer(store, Container)
-    const actual = container.$children[0]
+    const { wrapped } = mountContainer(store, Container)
 
-    assert(actual.foo === 'foo')
-    actual.$emit(TEST, 'bar')
+    assert(wrapped.foo === 'foo')
+    wrapped.$emit(TEST, 'bar')
 
     Vue.nextTick(() => {
-      assert(actual.foo === 'bar')
+      assert(wrapped.foo === 'bar')
       done()
     })
   })
@@ -269,11 +257,11 @@ describe('connect', () => {
       }
     })('example', Component)
 
-    const c = mountContainer(store, C)
-    c.$forceUpdate()
+    const { container } = mountContainer(store, C)
+    container.$forceUpdate()
 
     Vue.nextTick(() => {
-      c.$destroy()
+      container.$destroy()
       assert(count === 8)
       done()
     })
@@ -286,10 +274,10 @@ describe('connect', () => {
       }
     })('example', Component)
 
-    const c = mountContainer(store, C, { a: 1, b: 'test' })
+    const { container } = mountContainer(store, C, { a: 1, b: 'test' })
 
-    assert(c.a === 'foo') // should not override container props
-    assert(c.b === 'test')
+    assert(container.a === 'foo') // should not override container props
+    assert(container.b === 'test')
   })
 
   it('accepts component options for wrapped component', () => {
@@ -302,19 +290,32 @@ describe('connect', () => {
       }
     })('example', options)
 
-    const c = mountContainer(store, C)
+    const { container } = mountContainer(store, C)
 
-    assert(c.a === 'foo')
-    c.b('bar')
-    assert(c.a === 'barbar')
+    assert(container.a === 'foo')
+    container.b('bar')
+    assert(container.a === 'barbar')
   })
 })
 
 function mountContainer(store, Container, props) {
-  const app = new Vue({
+  const root = new Vue({
     el: '#app',
+    data: {
+      show: true
+    },
     store,
-    render: h => h(Container, { props })
+    render(h) {
+      return (
+        h('keep-alive', [
+          this.show && h(Container, { props })
+        ])
+      )
+    }
   })
-  return app.$children[0]
+  return {
+    root,
+    container: root.$children[0],
+    wrapped: root.$children[0].$children[0]
+  }
 }
