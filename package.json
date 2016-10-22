@@ -1,6 +1,6 @@
 {
   "name": "vuex-connect",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": "katashin",
   "description": "A binding utility for a Vue component and a Vuex store.",
   "keywords": [
