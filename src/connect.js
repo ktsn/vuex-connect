@@ -75,6 +75,7 @@ export function connect(options = {}) {
     const containerProps = omit(getOptions(Component).props || {}, propKeys)
 
     const options = {
+      name: `connect-${name}`,
       props: containerProps,
       components: {
         [name]: Component
