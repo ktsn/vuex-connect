@@ -50,6 +50,11 @@ describe('connect', () => {
     assert(typeof actual === 'function')
   })
 
+  it('sets a name on the wrapper component', () => {
+    const actual = connect()('example', Component)
+    assert(actual.options.name === 'connect-example')
+  })
+
   it('sets name to given component', () => {
     const Container = connect()('test', Component)
     const { wrapped } = mountContainer(store, Container)
