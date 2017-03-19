@@ -39,7 +39,7 @@ const LIFECYCLE_KEYS = [
   'deactivated'
 ]
 
-export function connect(options = {}) {
+export const createConnect = transform => (options = {}) => {
   const {
     stateToProps = {},
     gettersToProps = {},
@@ -93,6 +93,10 @@ export function connect(options = {}) {
 
     insertLifecycleMixin(options, lifecycle)
     insertRenderer(options, name, propKeys.concat(Object.keys(containerProps)), eventKeys)
+
+    if (transform) {
+      transform(options, lifecycle)
+    }
 
     return Vue.extend(options)
   }
