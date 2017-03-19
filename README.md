@@ -129,6 +129,52 @@ The lifecycle hooks receives Vuex store for their first argument. You can dispat
 
 `connect` returns another function. The function expects a component name and the component constructor. The component name should be `string` and it is useful to specify the component on debug phase.
 
+### `createConnect(fn) -> ConnectFunction`
+
+Create customized `connect` function. `fn` is transform function of the wrapper component options and will receive component options object and lifecycle option of connect function. You may want to inject some additional lifecycle hooks in `fn`.
+
+Example of defining vue-router lifecycle hooks:
+
+```js
+// connect.js
+import { createConnect } from 'vuex-connect'
+
+export const connect = createConnect((options, lifecycle) => {
+  options.beforeRouteEnter = lifecycle.beforeRouteEnter
+
+  options.beforeRouteUpdate = function(to, from, next) {
+    return lifecycle.beforeRouteUpdate.call(this, this.store, to, from, next)
+  }
+
+  options.beforeRouteLeave = function(to, from, next) {
+    return lifecycle.beforeRouteLeave.call(this, this.store, to, from, next)
+  }
+})
+```
+
+It can be used as:
+
+```js
+import { connect } from './connect'
+import { Example } from './example'
+
+export default connect({
+  lifecycle: {
+    beforeRouteEnter(to, from, next) {
+      // ...
+    },
+
+    beforeRouteUpdate(store, to, from, next) {
+      // ...
+    },
+
+    beforeRouteLeave(store, to, from, next) {
+      // ...
+    }
+  }
+})('example', Example)
+```
+
 ## License
 
 MIT
