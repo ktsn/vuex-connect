@@ -6,8 +6,6 @@ import { connect } from '../src/connect'
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-Vue.use(Vuex)
-
 describe('connect', () => {
   const TEST = 'TEST'
   let state, getters, actions, mutations, store, options, Component
