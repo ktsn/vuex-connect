@@ -10,7 +10,7 @@ Inspired by [react-redux](https://github.com/reactjs/react-redux)'s `connect` fu
 
 ## Example
 
-First, you should create a Vue component. The component should communicate a parent component by using props and events.
+First, create a Vue component. This component can communicate to a parent component using events and recieve data from the parent through props.
 
 ```js
 // hello-component.js
@@ -35,8 +35,8 @@ export default {
 }
 ```
 
-You can bind the component and the Vuex store by vuex-connect.  
-`connect` function wraps the component and create a new wrapper component.
+You can bind the component and the Vuex store by `vuex-connect`.  
+The `connect` function wraps the component, returning a new wrapper component.
 
 ```js
 import { connect } from 'vuex-connect'
@@ -52,7 +52,7 @@ export default connect({
   },
 
   lifecycle: {
-    ready: ({ commit }) => {
+    mounted: ({ commit }) => {
       fetch(URL)
         .then(res => res.text())
         .then(value => commit('UPDATE_INPUT', value));
@@ -77,7 +77,7 @@ export default connect({
   },
 
   lifecycle: {
-    ready: store => store.dispatch('FETCH_INPUT', URL)
+    mounted: store => store.dispatch('FETCH_INPUT', URL)
   }
 })('hello', HelloComponent)
 ```
@@ -102,9 +102,9 @@ export default connect({
 
 Connects a Vue component to a Vuex store.
 
-`stateToProps`, `gettersToProps`, `actionsTo(Props|Events)` and `mutationsTo(Props|Events)` have same interface of Vuex's `mapState`, `mapGetters`, `mapActions` and `mapMutations`. In addition, you can define inline methods by using `methodsTo(Props|Events)`.
+`stateToProps`, `gettersToProps`, `actionsTo(Props|Events)` and `mutationsTo(Props|Events)` have the same interface as Vuex's `mapState`, `mapGetters`, `mapActions` and `mapMutations`. In addition, you can define inline methods by using `methodsTo(Props|Events)`.
 
-The options suffixed by `Props` indicate they will be pass to the wrapped component's props. For example, following option retrieve a store state via `inputMessage` getter and pass it to `message` prop of the wrapped component.
+The options suffixed by `Props` indicate that they will be passed to the wrapped component's props. For example, the following option retrieves a store's state via the `inputMessage` getter and passes it to the `message` prop of the wrapped component.
 
 ```js
 connect({
@@ -114,7 +114,7 @@ connect({
 })
 ```
 
-The options suffixed by `Events` indicate they will listen the wrapped component's events. For example, following option observes the `update` event of wrapped component and if it is emitted, `UPDATE_INPUT` mutation is committed.
+The options suffixed by `Events` indicate that they will listen to the wrapped component's events. For example, the following option observes the `update` event of the wrapped component and if it is emitted, the `UPDATE_INPUT` mutation is committed.
 
 ```js
 connect({
@@ -125,15 +125,15 @@ connect({
 ```
 
 `lifecycle` is [lifecycle hooks](https://vuejs.org/api/#Options-Lifecycle-Hooks) for a Vue component.
-The lifecycle hooks receives Vuex store for their first argument. You can dispatch some actions or mutations in the lifecycle hooks.
+The lifecycle hooks receive a Vuex store for their first argument. You can dispatch some actions or mutations in the lifecycle hooks.
 
-`connect` returns another function. The function expects a component name and the component constructor. The component name should be `string` and it is useful to specify the component on debug phase.
+`connect` returns another function. The function expects a component name and the component constructor. The component name should be a `string`. It is useful to specify the component in the debug phase.
 
 ### `createConnect(fn) -> ConnectFunction`
 
-Create customized `connect` function. `fn` is transform function of the wrapper component options and will receive component options object and lifecycle option of connect function. You may want to inject some additional lifecycle hooks in `fn`.
+Creates a customized `connect` function. `fn` is transform function of the wrapper component options and will receive a component options object and a lifecycle option of the connect function. You may want to inject some additional lifecycle hooks in `fn`.
 
-Example of defining vue-router lifecycle hooks:
+Example of defining `vue-router` lifecycle hooks:
 
 ```js
 // connect.js
