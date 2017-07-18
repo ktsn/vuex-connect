@@ -2,20 +2,19 @@ const path = require('path')
 const glob = require('glob')
 
 module.exports = {
-  entry: ['es6-promise', path.resolve(__dirname, '../test/setup.js')]
-    .concat(glob.sync(path.resolve(__dirname, '../test/**/*.js'))),
+  entry: ['es6-promise/auto', path.resolve(__dirname, '../test/setup.js')]
+    .concat(glob.sync(path.resolve(__dirname, '../test/**/*.spec.js'))),
   output: {
     path: path.resolve(__dirname, '../.tmp'),
     filename: 'test.js'
   },
   resolve: {
-    modulesDirectories: ['node_modules'],
-    extensions: ['', '.js']
+    modules: ['node_modules'],
+    extensions: ['.js']
   },
   module: {
-    loaders: [
-      { test: /\.js$/, loader: 'babel', exclude: /node_modules/ },
-      { test: /\.json$/, loader: 'json' }
+    rules: [
+      { test: /\.js$/, loader: 'babel-loader', exclude: /node_modules/ }
     ]
   },
   devtool: 'source-map'

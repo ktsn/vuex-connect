@@ -222,13 +222,13 @@ describe('connect', () => {
   it('allows array style binding', done => {
     const Container = connect({
       gettersToProps: ['foo'],
-      mutationsToEvents: [TEST]
+      mutationsToProps: [TEST]
     })('example', Component)
 
     const { wrapped } = mountContainer(store, Container)
 
     assert(wrapped.foo === 'foo')
-    wrapped.$emit(TEST, 'bar')
+    wrapped[TEST]('bar')
 
     Vue.nextTick(() => {
       assert(wrapped.foo === 'bar')
@@ -237,8 +237,6 @@ describe('connect', () => {
   })
 
   it('injects lifecycle hooks', (done) => {
-    let C
-
     const counts = {}
     const lifecycle = {}
 
@@ -266,7 +264,7 @@ describe('connect', () => {
       lifecycle[key] = _assert(key)
     })
 
-    C = connect({
+    const C = connect({
       lifecycle
     })('example', Component)
 
