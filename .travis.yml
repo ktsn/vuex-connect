@@ -11,4 +11,4 @@ before_install:
 install:
   - yarn
 script:
-  - echo
+  - npm run release
