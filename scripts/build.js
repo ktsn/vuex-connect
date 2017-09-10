@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const fs = require('fs')
 const rollup = require('rollup').rollup
 const babel = require('rollup-plugin-babel')
@@ -58,7 +59,7 @@ rollup(config)
     }),
     uglify({
       output: {
-        comments: function(node, comment) {
+        comments(node, comment) {
           const text = comment.value
           const type = comment.type
           if (type === 'comment2') {
