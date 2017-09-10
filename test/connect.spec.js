@@ -34,7 +34,16 @@ describe('connect', () => {
     options = {
       props: ['a', 'b', 'foo', TEST],
       render(h) {
-        return h('div')
+        return h('div', [
+          this.$slots.namedSlot,
+          this.$slots.default,
+          this.$scopedSlots.namedScopedSlot && this.$scopedSlots.namedScopedSlot({
+            text: 'named'
+          }),
+          this.$scopedSlots.default && this.$scopedSlots.default({
+            text: 'default'
+          })
+        ])
       }
     }
 
@@ -322,9 +331,34 @@ describe('connect', () => {
     container.b('bar')
     assert(container.a === 'barbar')
   })
+
+  it('receives injected slots', () => {
+    const C = connect()('example', options)
+
+    const { wrapped } = mountContainer(store, C, null, {
+      slots: h => {
+        return [
+          h('div', { class: 'default-slot' }, 'default-slot'),
+          h('div', { class: 'named-slot', slot: 'named-slot' }, 'named-slot')
+        ]
+      },
+      scopedSlots: {
+        default: (h, props) => h('div', { class: 'default-scoped-slot' }, props.text + '-scoped-slot'),
+        namedScopedSlot: (h, props) => h('div', { class: 'named-scoped-slot' }, props.text + '-scoped-slot')
+      }
+    })
+
+    function query(selector) {
+      return wrapped.$el.querySelector(selector)
+    }
+    assert(query('.default-slot').textContent === 'default-slot')
+    assert(query('.named-slot').textContent === 'named-slot')
+    assert(query('.default-scoped-slot').textContent === 'default-scoped-slot')
+    assert(query('.named-scoped-slot').textContent === 'named-scoped-slot')
+  })
 })
 
-function mountContainer(store, Container, props) {
+function mountContainer(store, Container, props, options = {}) {
   const root = new Vue({
     el: '#app',
     data: {
@@ -332,9 +366,18 @@ function mountContainer(store, Container, props) {
     },
     store,
     render(h) {
+      const slots = options.slots && options.slots(h)
+
+      const scopedSlots = {}
+      if (options.scopedSlots) {
+        Object.keys(options.scopedSlots).forEach(key => {
+          scopedSlots[key] = props => options.scopedSlots[key](h, props)
+        })
+      }
+
       return (
         h('keep-alive', [
-          this.show && h(Container, { props })
+          this.show && h(Container, { props, scopedSlots }, slots)
         ])
       )
     }

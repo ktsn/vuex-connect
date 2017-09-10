@@ -1,5 +1,5 @@
 import assert from 'power-assert'
-import { camelToKebab, merge, pick, omit, mapValues, keys } from '../src/utils'
+import { camelToKebab, merge, pick, omit, flattenObject, mapValues, keys } from '../src/utils'
 
 describe('utils', () => {
 
@@ -52,6 +52,17 @@ describe('utils', () => {
       const actual = omit(a, ['a', 'c', 'e'])
 
       assert.deepEqual(actual, { b: 1, d: 1 })
+    })
+  })
+
+  describe('flattenObject', () => {
+    it('flatten the given object', () => {
+      const data = {
+        default: 'a',
+        foo: 'b'
+      }
+
+      assert.deepEqual(flattenObject(data), ['a', 'b'])
     })
   })
 

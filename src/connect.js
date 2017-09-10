@@ -13,7 +13,8 @@ import {
   pick,
   omit,
   keys,
-  mapValues
+  mapValues,
+  flattenObject
 } from './utils'
 
 const VERSION = Number(Vue.version.split('.')[0])
@@ -107,12 +108,13 @@ function insertRenderer(options, name, propKeys, eventKeys) {
     options.render = function(h) {
       return h(name, {
         props: pick(this, propKeys),
-        on: pick(this, eventKeys)
-      })
+        on: pick(this, eventKeys),
+        scopedSlots: this.$scopedSlots
+      }, flattenObject(this.$slots))
     }
   } else {
     const props = propKeys.map(bindProp)
-    options.template = `<${name} v-ref:component ${props.join(' ')}></${name}>`
+    options.template = `<${name} v-ref:component ${props.join(' ')}><slot></slot></${name}>`
 
     // register event listeners on the compiled hook
     // because vue cannot recognize camelCase name on the template
