@@ -77,6 +77,7 @@ rollup(config)
   }))
   .catch(error => {
     console.error(error)
+    process.exit(1)
   })
 
 function addPlugins(config, plugins) {
@@ -94,12 +95,13 @@ function mkdirIfNotExists(dirPath) {
 }
 
 function write(bundle, dest, config) {
-  const code = bundle.generate(config).code
-  return new Promise((resolve, reject) => {
-    fs.writeFile(dest, code, error => {
-      if (error) return reject(error)
-      console.log(green(dest) + ' ' + size(code))
-      resolve()
+  return bundle.generate(config).then(({ code }) => {
+    return new Promise((resolve, reject) => {
+      fs.writeFile(dest, code, error => {
+        if (error) return reject(error)
+        console.log(green(dest) + ' ' + size(code))
+        resolve()
+      })
     })
   })
 }
