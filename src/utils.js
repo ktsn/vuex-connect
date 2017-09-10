@@ -34,6 +34,14 @@ export function omit(obj, keys) {
   return res
 }
 
+export function flattenObject(obj) {
+  const res = []
+  Object.keys(obj).forEach(key => {
+    res.push(obj[key])
+  })
+  return res
+}
+
 export function mapValues(obj, f) {
   const res = {}
   Object.keys(obj).forEach(key => {
