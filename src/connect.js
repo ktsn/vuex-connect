@@ -96,7 +96,7 @@ function insertRenderer(options, name, propKeys, eventKeys) {
   options.render = function(h) {
     return h(name, {
       props: pick(this, propKeys),
-      on: pick(this, eventKeys),
+      on: mergeListeners(pick(this, eventKeys), this.$listeners || {}),
       scopedSlots: this.$scopedSlots
     }, flattenObject(this.$slots))
   }
@@ -110,6 +110,17 @@ function insertLifecycleMixin(options, lifecycle) {
       }
     })
   ]
+}
+
+function mergeListeners(a, b) {
+  Object.keys(b).forEach(key => {
+    if (a.hasOwnProperty(key)) {
+      a[key] = [].concat(a[key]).concat(b[key])
+    } else {
+      a[key] = b[key]
+    }
+  })
+  return a
 }
 
 function getOptions(Component) {

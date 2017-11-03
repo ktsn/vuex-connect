@@ -1,4 +1,5 @@
 import assert from 'power-assert'
+import * as td from 'testdouble'
 import { setup, teardown } from './stub/dom'
 
 import { connect } from '../src'
@@ -314,7 +315,12 @@ describe('connect', () => {
       }
     })('example', Component)
 
-    const { container } = mountContainer(store, C, { a: 1, b: 'test' })
+    const { container } = mountContainer(store, C, {
+      props: {
+        a: 1,
+        b: 'test'
+      }
+    })
 
     assert(container.a === 'foo') // should not override container props
     assert(container.b === 'test')
@@ -340,7 +346,7 @@ describe('connect', () => {
   it('receives injected slots', () => {
     const C = connect()('example', options)
 
-    const { wrapped } = mountContainer(store, C, null, {
+    const { wrapped } = mountContainer(store, C, {
       slots: h => {
         return [
           h('div', { class: 'default-slot' }, 'default-slot'),
@@ -361,9 +367,34 @@ describe('connect', () => {
     assert(query('.default-scoped-slot').textContent === 'default-scoped-slot')
     assert(query('.named-scoped-slot').textContent === 'named-scoped-slot')
   })
+
+  it('ports wrapped component events', () => {
+    const foo = td.function()
+    const bar = td.function()
+
+    const C = connect({
+      mutationsToEvents: {
+        bar: TEST
+      }
+    })('example', options)
+
+    const { wrapped } = mountContainer(store, C, {
+      on: {
+        foo,
+        bar
+      }
+    })
+
+    wrapped.$emit('foo', 'foo')
+    wrapped.$emit('bar', 'bar')
+
+    td.verify(foo('foo'))
+    td.verify(bar('bar'))
+    assert(store.state.foo === 'bar')
+  })
 })
 
-function mountContainer(store, Container, props, options = {}) {
+function mountContainer(store, Container, options = {}) {
   const root = new Vue({
     el: '#app',
     data: {
@@ -382,7 +413,11 @@ function mountContainer(store, Container, props, options = {}) {
 
       return (
         h('keep-alive', [
-          this.show && h(Container, { props, scopedSlots }, slots)
+          this.show && h(Container, {
+            props: options.props,
+            on: options.on,
+            scopedSlots
+          }, slots)
         ])
       )
     }
