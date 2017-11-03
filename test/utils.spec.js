@@ -1,25 +1,7 @@
 import assert from 'power-assert'
-import { camelToKebab, merge, pick, omit, flattenObject, mapValues, keys } from '../src/utils'
+import { merge, pick, omit, flattenObject, mapValues, keys } from '../src/utils'
 
 describe('utils', () => {
-
-  describe('camelToKebab', () => {
-    it('translates camelCase to kebab-case', () => {
-      assert(camelToKebab('camelCaseToKebabCase') === 'camel-case-to-kebab-case')
-    })
-
-    it('does not add hyphen to the first position', () => {
-      assert(camelToKebab('FirstPosition') === 'first-position')
-    })
-
-    it('does nothing if there is no camel case string', () => {
-      assert(camelToKebab('no_camel-string0123') === 'no_camel-string0123')
-    })
-
-    it('adds hyphen between a number and a upper case character', () => {
-      assert(camelToKebab('camel012Camel') === 'camel012-camel')
-    })
-  })
 
   describe('merge', () => {
     it('merges given objects and should not mutate any objects', () => {

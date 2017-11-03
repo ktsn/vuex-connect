@@ -8,7 +8,6 @@ import {
 } from 'vuex'
 
 import {
-  camelToKebab,
   merge,
   pick,
   omit,
@@ -17,27 +16,17 @@ import {
   flattenObject
 } from './utils'
 
-const VERSION = Number(Vue.version.split('.')[0])
-
 const LIFECYCLE_KEYS = [
-  'init',
-  'created',
-  'beforeCompile',
-  'compiled',
-  'ready',
-  'attached',
-  'detached',
-  'beforeDestroy',
-  'destroyed',
-
-  // 2.0
   'beforeCreate',
+  'created',
   'beforeMount',
   'mounted',
   'beforeUpdate',
   'updated',
   'activated',
-  'deactivated'
+  'deactivated',
+  'beforeDestroy',
+  'destroyed'
 ]
 
 export const createConnect = transform => (options = {}) => {
@@ -104,25 +93,12 @@ export const createConnect = transform => (options = {}) => {
 }
 
 function insertRenderer(options, name, propKeys, eventKeys) {
-  if (VERSION >= 2) {
-    options.render = function(h) {
-      return h(name, {
-        props: pick(this, propKeys),
-        on: pick(this, eventKeys),
-        scopedSlots: this.$scopedSlots
-      }, flattenObject(this.$slots))
-    }
-  } else {
-    const props = propKeys.map(bindProp)
-    options.template = `<${name} v-ref:component ${props.join(' ')}><slot></slot></${name}>`
-
-    // register event listeners on the compiled hook
-    // because vue cannot recognize camelCase name on the template
-    options.compiled = function() {
-      eventKeys.forEach(key => {
-        this.$refs.component.$on(key, this[key])
-      })
-    }
+  options.render = function(h) {
+    return h(name, {
+      props: pick(this, propKeys),
+      on: pick(this, eventKeys),
+      scopedSlots: this.$scopedSlots
+    }, flattenObject(this.$slots))
   }
 }
 
@@ -141,10 +117,6 @@ function getOptions(Component) {
     return Component.options
   }
   return Component
-}
-
-function bindProp(key) {
-  return `:${camelToKebab(key)}="${key}"`
 }
 
 function bindStore(fn) {
