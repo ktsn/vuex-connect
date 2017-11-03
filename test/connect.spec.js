@@ -57,6 +57,11 @@ describe('connect', () => {
     assert(typeof actual === 'function')
   })
 
+  it('returns wrapped component options', () => {
+    const actual = connect()('example', options)
+    assert(typeof actual === 'object')
+  })
+
   it('sets a name on the wrapper component', () => {
     const actual = connect()('example', Component)
     assert(actual.options.name === 'connect-example')

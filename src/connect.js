@@ -99,7 +99,7 @@ export const createConnect = transform => (options = {}) => {
       transform(options, lifecycle)
     }
 
-    return Vue.extend(options)
+    return typeof Component === 'function' ? Vue.extend(options) : options
   }
 }
 
