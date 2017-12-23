@@ -392,6 +392,28 @@ describe('connect', () => {
     td.verify(bar('bar'))
     assert(store.state.foo === 'bar')
   })
+
+  it('should handle array style props definition', () => {
+    const options = {
+      props: ['foo', 'bar'],
+      render (h) {
+        return h('div', [this.foo + ',' + this.bar])
+      }
+    }
+
+    const C = connect({
+      stateToProps: {
+        foo: 'foo'
+      }
+    })('example', options)
+
+    const { wrapped } = mountContainer(store, C, {
+      props: {
+        bar: 'bar'
+      }
+    })
+    assert(wrapped.$el.textContent === 'foo,bar')
+  })
 })
 
 function mountContainer(store, Container, options = {}) {
