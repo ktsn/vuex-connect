@@ -62,7 +62,15 @@ export const createConnect = transform => (options = {}) => {
       methodsToEvents
     )
 
-    const containerProps = omit(getOptions(Component).props || {}, propKeys)
+    const originalProps = getOptions(Component).props || {}
+
+    let containerProps, containerPropsKeys
+    if (Array.isArray(originalProps)) {
+      containerProps = containerPropsKeys = originalProps.filter(p => propKeys.indexOf(p) < 0)
+    } else {
+      containerProps = omit(originalProps, propKeys)
+      containerPropsKeys = Object.keys(containerProps)
+    }
 
     const options = {
       name: `connect-${name}`,
@@ -82,7 +90,7 @@ export const createConnect = transform => (options = {}) => {
     }
 
     insertLifecycleMixin(options, lifecycle)
-    insertRenderer(options, name, propKeys.concat(Object.keys(containerProps)), eventKeys)
+    insertRenderer(options, name, propKeys.concat(containerPropsKeys), eventKeys)
 
     if (transform) {
       transform(options, lifecycle)
