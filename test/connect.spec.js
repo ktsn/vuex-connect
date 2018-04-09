@@ -36,14 +36,18 @@ describe('connect', () => {
       props: ['a', 'b', 'foo', TEST],
       render(h) {
         return h('div', [
-          this.$slots.namedSlot,
-          this.$slots.default,
-          this.$scopedSlots.namedScopedSlot && this.$scopedSlots.namedScopedSlot({
-            text: 'named'
-          }),
-          this.$scopedSlots.default && this.$scopedSlots.default({
-            text: 'default'
-          })
+          h('div', { class: 'named-slot' }, [this.$slots.namedSlot]),
+          h('div', { class: 'default-slot' }, [this.$slots.default]),
+          h('div', { class: 'named-scoped-slot' }, [
+            this.$scopedSlots.namedScopedSlot && this.$scopedSlots.namedScopedSlot({
+              text: 'named'
+            })
+          ]),
+          h('div', { class: 'default-scoped-slot' }, [
+            this.$scopedSlots.default && this.$scopedSlots.default({
+              text: 'default'
+            })
+          ])
         ])
       }
     }
@@ -349,13 +353,13 @@ describe('connect', () => {
     const { wrapped } = mountContainer(store, C, {
       slots: h => {
         return [
-          h('div', { class: 'default-slot' }, 'default-slot'),
-          h('div', { class: 'named-slot', slot: 'named-slot' }, 'named-slot')
+          h('div', ['default-slot']),
+          h('div', { slot: 'namedSlot' }, ['named-slot'])
         ]
       },
       scopedSlots: {
-        default: (h, props) => h('div', { class: 'default-scoped-slot' }, props.text + '-scoped-slot'),
-        namedScopedSlot: (h, props) => h('div', { class: 'named-scoped-slot' }, props.text + '-scoped-slot')
+        default: (h, props) => h('div', [props.text + '-scoped-slot']),
+        namedScopedSlot: (h, props) => h('div', [props.text + '-scoped-slot'])
       }
     })
 

@@ -106,7 +106,7 @@ function insertRenderer(options, name, propKeys, eventKeys) {
       props: pick(this, propKeys),
       on: mergeListeners(pick(this, eventKeys), this.$listeners || {}),
       scopedSlots: this.$scopedSlots
-    }, flattenObject(this.$slots))
+    }, flattenObject(this.$slots).map(slot => patchSlot(slot, this)))
   }
 }
 
@@ -151,4 +151,18 @@ function normalizeOptions(options) {
       return obj
     }, {})
     : options
+}
+
+/**
+ * Modify the slot context to let Vue handle
+ * named slot expectedly
+ */
+function patchSlot(vnode, vm) {
+  if (vnode.context) {
+    vnode.context = vm._self
+  }
+  if (vnode.fnContext) {
+    vnode.fnContext = vm._self
+  }
+  return vnode
 }
