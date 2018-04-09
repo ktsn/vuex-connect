@@ -10,7 +10,7 @@ const banner = `/*!
  * ${meta.name} v${meta.version}
  * ${meta.homepage}
  *
- * Copyright (c) 2016 ${meta.author}
+ * Copyright (c) 2016-present ${meta.author}
  * Released under the MIT license
  * ${meta.homepage}/blob/master/LICENSE
  */`
