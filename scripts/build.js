@@ -42,6 +42,14 @@ rollup(config)
       globals
     })
   })
+  .then(() => rollup(config))
+  .then(bundle => {
+    return write(bundle, `dist/${meta.name}.esm.js`, {
+      format: 'es',
+      banner,
+      globals
+    })
+  })
   .then(() => rollup(addPlugins(config, [
     replace({
       'process.env.NODE_ENV': JSON.stringify('development')

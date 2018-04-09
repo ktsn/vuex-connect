@@ -16,6 +16,8 @@
   ],
   "license": "MIT",
   "main": "dist/vuex-connect.common.js",
+  "module": "dist/vuex-connect.esm.js",
+  "unpkg": "dist/vuex-connect.js",
   "homepage": "https://github.com/ktsn/vuex-connect",
   "bugs": "https://github.com/ktsn/vuex-connect/issues",
   "repository": {
