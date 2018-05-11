@@ -2,6 +2,7 @@ const path = require('path')
 const glob = require('glob')
 
 module.exports = {
+  mode: 'development',
   entry: ['es6-promise/auto', path.resolve(__dirname, '../test/setup.js')]
     .concat(glob.sync(path.resolve(__dirname, '../test/**/*.spec.js'))),
   output: {
@@ -17,5 +18,5 @@ module.exports = {
       { test: /\.js$/, loader: 'babel-loader', exclude: /node_modules/ }
     ]
   },
-  devtool: 'source-map'
+  devtool: 'inline-source-map'
 }

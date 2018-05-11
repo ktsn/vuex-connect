@@ -15,7 +15,7 @@ const banner = `/*!
  * ${meta.homepage}/blob/master/LICENSE
  */`
 
-const moduleName = 'VuexConnect'
+const name = 'VuexConnect'
 
 const globals = {
   vue: 'Vue',
@@ -23,7 +23,7 @@ const globals = {
 }
 
 const config = {
-  entry: 'src/index.js',
+  input: 'src/index.js',
   plugins: [
     babel({
       exclude: 'node_modules/**'
@@ -58,7 +58,7 @@ rollup(config)
   .then(bundle => write(bundle, `dist/${meta.name}.js`, {
     format: 'umd',
     banner,
-    moduleName,
+    name,
     globals
   }))
   .then(() => rollup(addPlugins(config, [
@@ -80,7 +80,7 @@ rollup(config)
   .then(bundle => write(bundle, `dist/${meta.name}.min.js`, {
     format: 'umd',
     banner,
-    moduleName,
+    name,
     globals
   }))
   .catch(error => {
