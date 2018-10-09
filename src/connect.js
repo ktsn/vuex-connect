@@ -62,15 +62,9 @@ export const createConnect = transform => (options = {}) => {
       methodsToEvents
     )
 
-    const originalProps = getOptions(Component).props || {}
 
-    let containerProps, containerPropsKeys
-    if (Array.isArray(originalProps)) {
-      containerProps = containerPropsKeys = originalProps.filter(p => propKeys.indexOf(p) < 0)
-    } else {
-      containerProps = omit(originalProps, propKeys)
-      containerPropsKeys = Object.keys(containerProps)
-    }
+    const containerProps = omit(collectProps(Component), propKeys)
+    const containerPropsKeys = Object.keys(containerProps)
 
     const options = {
       name: `connect-${name}`,
@@ -136,6 +130,33 @@ function getOptions(Component) {
     return Component.options
   }
   return Component
+}
+
+/**
+ * Collect all props options of the component.
+ * It traverses all mixins and ancester components.
+ */
+function collectProps(Component) {
+  const options = getOptions(Component)
+
+  const supers = options.mixins || []
+  if (options.extends) {
+    supers.push(options.extends)
+  }
+
+  const superProps = supers.reduce((acc, s) => {
+    return merge(acc, collectProps(s))
+  }, {})
+
+  let props = options.props || {}
+  if (Array.isArray(props)) {
+    props = props.reduce((acc, key) => {
+      acc[key] = null
+      return acc
+    }, {})
+  }
+
+  return merge(superProps, props)
 }
 
 function bindStore(fn) {

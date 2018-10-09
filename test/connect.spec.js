@@ -418,6 +418,77 @@ describe('connect', () => {
     })
     assert(wrapped.$el.textContent === 'foo,bar')
   })
+
+  it('should handle the props definition from mixins', () => {
+    const mixin = {
+      props: ['foo']
+    }
+
+    const options = {
+      mixins: [mixin],
+      props: ['bar'],
+      render (h) {
+        return h('div', [this.foo + ',' + this.bar])
+      }
+    }
+
+    const C = connect()(options)
+
+    const { wrapped } = mountContainer(store, C, {
+      props: {
+        foo: 'foo value',
+        bar: 'bar value'
+      }
+    })
+    assert(wrapped.$el.textContent === 'foo value,bar value')
+  })
+
+  it('should handle the props definition from extends option', () => {
+    const superComp = {
+      props: ['foo']
+    }
+
+    const options = {
+      extends: superComp,
+      props: ['bar'],
+      render (h) {
+        return h('div', [this.foo + ',' + this.bar])
+      }
+    }
+
+    const C = connect()(options)
+
+    const { wrapped } = mountContainer(store, C, {
+      props: {
+        foo: 'foo value',
+        bar: 'bar value'
+      }
+    })
+    assert(wrapped.$el.textContent === 'foo value,bar value')
+  })
+
+  it('should handle the props definition on super component', () => {
+    const Super = Vue.extend({
+      props: ['foo']
+    })
+
+    const Comp = Super.extend({
+      props: ['bar'],
+      render (h) {
+        return h('div', [this.foo + ',' + this.bar])
+      }
+    })
+
+    const C = connect()(Comp)
+
+    const { wrapped } = mountContainer(store, C, {
+      props: {
+        foo: 'foo value',
+        bar: 'bar value'
+      }
+    })
+    assert(wrapped.$el.textContent === 'foo value,bar value')
+  })
 })
 
 function mountContainer(store, Container, options = {}) {
