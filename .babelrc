@@ -1,6 +1,6 @@
 {
   "env": {
-    "development": {
+    "test": {
       "presets": ["es2015", "power-assert"]
     },
     "production": {
