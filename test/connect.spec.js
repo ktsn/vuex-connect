@@ -23,11 +23,15 @@ describe('connect', () => {
     }
 
     actions = {
-      [TEST]({ commit }, value) { commit('TEST', value + value) }
+      [TEST]({ commit }, value) {
+        commit('TEST', value + value)
+      }
     }
 
     mutations = {
-      [TEST](state, value) { state.foo = value }
+      [TEST](state, value) {
+        state.foo = value
+      }
     }
 
     store = new Vuex.Store({ state, getters, actions, mutations })
@@ -39,14 +43,16 @@ describe('connect', () => {
           h('div', { class: 'named-slot' }, [this.$slots.namedSlot]),
           h('div', { class: 'default-slot' }, [this.$slots.default]),
           h('div', { class: 'named-scoped-slot' }, [
-            this.$scopedSlots.namedScopedSlot && this.$scopedSlots.namedScopedSlot({
-              text: 'named'
-            })
+            this.$scopedSlots.namedScopedSlot &&
+              this.$scopedSlots.namedScopedSlot({
+                text: 'named'
+              })
           ]),
           h('div', { class: 'default-scoped-slot' }, [
-            this.$scopedSlots.default && this.$scopedSlots.default({
-              text: 'default'
-            })
+            this.$scopedSlots.default &&
+              this.$scopedSlots.default({
+                text: 'default'
+              })
           ])
         ])
       }
@@ -97,7 +103,7 @@ describe('connect', () => {
   it('binds state mapping to component props', done => {
     const Container = connect({
       stateToProps: {
-        a: (state) => state.foo
+        a: state => state.foo
       }
     })('example', Component)
 
@@ -255,19 +261,19 @@ describe('connect', () => {
     })
   })
 
-  it('injects lifecycle hooks', (done) => {
+  it('injects lifecycle hooks', done => {
     const counts = {}
     const lifecycle = {}
 
     function _assert(name) {
-      return function (_store) {
+      return function(_store) {
         assert(_store === store)
         assert(this instanceof C)
         counts[name] += 1
       }
     }
 
-    [
+    ;[
       'beforeCreate',
       'created',
       'beforeDestroy',
@@ -400,7 +406,7 @@ describe('connect', () => {
   it('should handle array style props definition', () => {
     const options = {
       props: ['foo', 'bar'],
-      render (h) {
+      render(h) {
         return h('div', [this.foo + ',' + this.bar])
       }
     }
@@ -427,7 +433,7 @@ describe('connect', () => {
     const options = {
       mixins: [mixin],
       props: ['bar'],
-      render (h) {
+      render(h) {
         return h('div', [this.foo + ',' + this.bar])
       }
     }
@@ -451,7 +457,7 @@ describe('connect', () => {
     const options = {
       extends: superComp,
       props: ['bar'],
-      render (h) {
+      render(h) {
         return h('div', [this.foo + ',' + this.bar])
       }
     }
@@ -474,7 +480,7 @@ describe('connect', () => {
 
     const Comp = Super.extend({
       props: ['bar'],
-      render (h) {
+      render(h) {
         return h('div', [this.foo + ',' + this.bar])
       }
     })
@@ -508,15 +514,18 @@ function mountContainer(store, Container, options = {}) {
         })
       }
 
-      return (
-        h('keep-alive', [
-          this.show && h(Container, {
-            props: options.props,
-            on: options.on,
-            scopedSlots
-          }, slots)
-        ])
-      )
+      return h('keep-alive', [
+        this.show &&
+          h(
+            Container,
+            {
+              props: options.props,
+              on: options.on,
+              scopedSlots
+            },
+            slots
+          )
+      ])
     }
   })
   return {

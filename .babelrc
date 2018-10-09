@@ -1,10 +1,11 @@
 {
+  "presets": [
+    ["@babel/preset-env", { "modules": false }],
+    "@babel/preset-typescript"
+  ],
   "env": {
     "test": {
-      "presets": ["es2015", "power-assert"]
-    },
-    "production": {
-      "presets": ["es2015-rollup"]
+      "presets": [["@babel/preset-env"], "power-assert"]
     }
   }
 }
