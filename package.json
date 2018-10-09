@@ -26,15 +26,15 @@
     "url": "https://github.com/ktsn/vuex-connect.git"
   },
   "scripts": {
-    "prepublishOnly": "npm run release",
-    "clean": "rm -rf dist .tmp",
+    "prepublishOnly": "run-s clean build",
+    "clean": "rm -rf dist lib",
     "build": "run-s build:ts build:rollup",
     "build:ts": "tsc -p .",
     "build:rollup": "node scripts/build.js",
-    "lint": "eslint --fix \"@(src|test|scripts)/**/*.js\"",
+    "lint": "eslint \"@(src|test|scripts)/**/*.js\"",
+    "lint:fix": "yarn lint --fix",
     "test": "jest",
-    "test:watch": "jest --watch",
-    "release": "run-s lint test clean build"
+    "test:watch": "jest --watch"
   },
   "devDependencies": {
     "@babel/core": "^7.1.2",
