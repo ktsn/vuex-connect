@@ -17,14 +17,14 @@ describe('createConnect', () => {
 
   it('transforms component options with lifecycle options', done => {
     const connect = createConnect((options, lifecycle) => {
-      options.foo = function (arg) {
+      options.foo = function(arg) {
         lifecycle.foo.call(this, this.$store, arg)
       }
     })
 
     const Comp = connect({
       lifecycle: {
-        foo (store, arg) {
+        foo(store, arg) {
           assert(this instanceof Vue)
           assert(store instanceof Vuex.Store)
           assert(arg === 'test')

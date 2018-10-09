@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 const fs = require('fs')
 const rollup = require('rollup').rollup
-const babel = require('rollup-plugin-babel')
 const replace = require('rollup-plugin-replace')
 const uglify = require('rollup-plugin-uglify')
 const meta = require('../package.json')
@@ -23,12 +22,8 @@ const globals = {
 }
 
 const config = {
-  input: 'src/index.js',
-  plugins: [
-    babel({
-      exclude: 'node_modules/**'
-    })
-  ],
+  input: 'lib/index.js',
+  plugins: [],
   external: ['vue', 'vuex']
 }
 
@@ -50,39 +45,51 @@ rollup(config)
       globals
     })
   })
-  .then(() => rollup(addPlugins(config, [
-    replace({
-      'process.env.NODE_ENV': JSON.stringify('development')
+  .then(() =>
+    rollup(
+      addPlugins(config, [
+        replace({
+          'process.env.NODE_ENV': JSON.stringify('development')
+        })
+      ])
+    )
+  )
+  .then(bundle =>
+    write(bundle, `dist/${meta.name}.js`, {
+      format: 'umd',
+      banner,
+      name,
+      globals
     })
-  ])))
-  .then(bundle => write(bundle, `dist/${meta.name}.js`, {
-    format: 'umd',
-    banner,
-    name,
-    globals
-  }))
-  .then(() => rollup(addPlugins(config, [
-    replace({
-      'process.env.NODE_ENV': JSON.stringify('production')
-    }),
-    uglify({
-      output: {
-        comments(node, comment) {
-          const text = comment.value
-          const type = comment.type
-          if (type === 'comment2') {
-            return /^!/i.test(text)
+  )
+  .then(() =>
+    rollup(
+      addPlugins(config, [
+        replace({
+          'process.env.NODE_ENV': JSON.stringify('production')
+        }),
+        uglify({
+          output: {
+            comments(node, comment) {
+              const text = comment.value
+              const type = comment.type
+              if (type === 'comment2') {
+                return /^!/i.test(text)
+              }
+            }
           }
-        }
-      }
+        })
+      ])
+    )
+  )
+  .then(bundle =>
+    write(bundle, `dist/${meta.name}.min.js`, {
+      format: 'umd',
+      banner,
+      name,
+      globals
     })
-  ])))
-  .then(bundle => write(bundle, `dist/${meta.name}.min.js`, {
-    format: 'umd',
-    banner,
-    name,
-    globals
-  }))
+  )
   .catch(error => {
     console.error(error)
     process.exit(1)

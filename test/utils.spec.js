@@ -2,7 +2,6 @@ import assert from 'power-assert'
 import { merge, pick, omit, flattenObject, mapValues, keys } from '../src/utils'
 
 describe('utils', () => {
-
   describe('merge', () => {
     it('merges given objects and should not mutate any objects', () => {
       const a = { a: 1, b: 1 }
@@ -59,7 +58,7 @@ describe('utils', () => {
   })
 
   describe('keys', () => {
-    it('concats all objects\' keys', () => {
+    it("concats all objects' keys", () => {
       const actual = keys({ a: 'a', b: 0 }, { b: '', c: null }, { d: false })
 
       assert.deepEqual(actual, ['a', 'b', 'c', 'd'])
