@@ -2,7 +2,7 @@
 const fs = require('fs')
 const rollup = require('rollup').rollup
 const replace = require('rollup-plugin-replace')
-const uglify = require('rollup-plugin-uglify')
+const { uglify } = require('rollup-plugin-uglify')
 const meta = require('../package.json')
 
 const banner = `/*!
