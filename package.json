@@ -12,7 +12,8 @@
     "container"
   ],
   "files": [
-    "dist"
+    "dist",
+    "lib"
   ],
   "license": "MIT",
   "main": "dist/vuex-connect.common.js",
