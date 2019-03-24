@@ -93,12 +93,12 @@ export function createConnect<StateType = any, GettersType = any>(
       if (typeof gettersToProps == 'function') {
         var evaluatedGettersToProps = gettersToProps(mapGetters);
       } else {
-        var evaluatedGettersToProps = { ...mapGetters(gettersToProps) };
+        var evaluatedGettersToProps = mapGetters(gettersToProps);
       }
       if (typeof stateToProps == 'function') {
         var evaluatedStateToProps = stateToProps(mapState);
       } else {
-        var evaluatedStateToProps = { ...mapState(stateToProps) };
+        var evaluatedStateToProps = mapState(stateToProps);
       }
 
       const propKeys = keys(
