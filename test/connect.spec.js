@@ -10,6 +10,7 @@ import Vuex from 'vuex'
 describe('connect', () => {
   const TEST = 'TEST'
   let state, getters, actions, mutations, store, options, Component
+  let namespaced_state, namespaced_getters, namespaced_store
 
   beforeEach(() => {
     setup()
@@ -35,6 +36,18 @@ describe('connect', () => {
     }
 
     store = new Vuex.Store({ state, getters, actions, mutations })
+
+    namespaced_state = {
+      foo: 'parent_foo'
+    }
+    namespaced_getters = {
+      foo: state => state.foo
+    }
+    namespaced_store = new Vuex.Store({
+      modules: { inner_foo: { namespaced: true, state, getters, actions, mutations } },
+      getters: namespaced_getters,
+      state: namespaced_state
+    })
 
     options = {
       props: ['a', 'b', 'foo', TEST],
@@ -494,6 +507,44 @@ describe('connect', () => {
       }
     })
     assert(wrapped.$el.textContent === 'foo value,bar value')
+  })
+
+  it('handles namespaced state in stateToProps', () => {
+    const Container = connect({
+      stateToProps: (mapState) => ({
+        ...mapState('inner_foo', {
+          namespaced_foo: 'foo',
+        }),
+        ...mapState({
+          foo: 'foo'
+        })
+      }),
+      mixins: {}
+    })('example', Component)
+
+    const { container } = mountContainer(namespaced_store, Container)
+
+    assert(container.namespaced_foo === 'foo')
+    assert(container.foo === 'parent_foo')
+  })
+
+  it('handles namespaced getters in gettersToProps', () => {
+    const Container = connect({
+      gettersToProps: (mapGetters) => ({
+        ...mapGetters('inner_foo', {
+          namespaced_foo: 'foo',
+        }),
+        ...mapGetters({
+          foo: 'foo'
+        })
+      }),
+      mixins: {}
+    })('example', Component)
+
+    const { container } = mountContainer(namespaced_store, Container)
+
+    assert(container.namespaced_foo === 'foo')
+    assert(container.foo === 'parent_foo')
   })
 })
 
