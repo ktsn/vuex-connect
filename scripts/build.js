@@ -110,7 +110,7 @@ function mkdirIfNotExists(dirPath) {
 }
 
 function write(bundle, dest, config) {
-  return bundle.generate(config).then(({ code }) => {
+  return bundle.generate(config).then(({ output: [{ code }] }) => {
     return new Promise((resolve, reject) => {
       fs.writeFile(dest, code, error => {
         if (error) return reject(error)
