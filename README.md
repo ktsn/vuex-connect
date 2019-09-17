@@ -81,9 +81,10 @@ export default connect({
 })('hello', HelloComponent)
 ```
 
-You can use the visitor pattern in `gettersToProps` and `stateToProps` to 
-accept `mapGetters` and `mapState` respectively (to utilize their full
-API). This can allow you to use namespaced stores.
+You can use the visitor pattern in `gettersToProps`, `stateToProps`,
+`actionsToProps`, and `mutationsToProps` to accept `mapGetters`,
+`mapState`, `mapActions`, and `mapMutations` respectively (to utilize
+Vuex's full API). This can allow you to use namespaced stores.
 
 ``` js
 
@@ -106,7 +107,23 @@ export default connect({
     ...mapGetters({
       encryptedMessage: 'encryptedInputMessage'
     })
-  })
+  }),
+  mutationsToProps: (mapMutations) => ({
+    ...mapMutations('innerFoo', {
+      innerFooMutation: 'foo',
+    }),
+    ...mapMutations({
+      parentFooMutation: 'foo'
+    }),
+  }),
+  actionsToProps: (mapActions) => ({
+    ...mapActions('innerFoo', {
+      innerFooAction: 'foo',
+    }),
+    ...mapActions({
+      parentFooAction: 'foo'
+    }),
+  }),
 })('hello', HelloComponent)
 
 ```
