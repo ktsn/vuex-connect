@@ -10,7 +10,7 @@ import Vuex from 'vuex'
 describe('connect', () => {
   const TEST = 'TEST'
   let state, getters, actions, mutations, store, options, Component
-  let namespaced_state, namespaced_getters, namespaced_store
+  let namespacedState, namespacedGetters, namespacedStore
 
   beforeEach(() => {
     setup()
@@ -37,16 +37,16 @@ describe('connect', () => {
 
     store = new Vuex.Store({ state, getters, actions, mutations })
 
-    namespaced_state = {
-      foo: 'parent_foo'
+    namespacedState = {
+      foo: 'parentFoo'
     }
-    namespaced_getters = {
+    namespacedGetters = {
       foo: state => state.foo
     }
-    namespaced_store = new Vuex.Store({
-      modules: { inner_foo: { namespaced: true, state, getters, actions, mutations } },
-      getters: namespaced_getters,
-      state: namespaced_state
+    namespacedStore = new Vuex.Store({
+      modules: { innerFoo: { namespaced: true, state, getters, actions, mutations } },
+      getters: namespacedGetters,
+      state: namespacedState
     })
 
     options = {
@@ -512,8 +512,8 @@ describe('connect', () => {
   it('handles namespaced state in stateToProps', () => {
     const Container = connect({
       stateToProps: (mapState) => ({
-        ...mapState('inner_foo', {
-          namespaced_foo: 'foo',
+        ...mapState('innerFoo', {
+          namespacedFoo: 'foo',
         }),
         ...mapState({
           foo: 'foo'
@@ -521,17 +521,17 @@ describe('connect', () => {
       })
     })('example', Component)
 
-    const { container } = mountContainer(namespaced_store, Container)
+    const { container } = mountContainer(namespacedStore, Container)
 
-    assert(container.namespaced_foo === 'foo')
-    assert(container.foo === 'parent_foo')
+    assert(container.namespacedFoo === 'foo')
+    assert(container.foo === 'parentFoo')
   })
 
   it('handles namespaced getters in gettersToProps', () => {
     const Container = connect({
       gettersToProps: (mapGetters) => ({
-        ...mapGetters('inner_foo', {
-          namespaced_foo: 'foo',
+        ...mapGetters('innerFoo', {
+          namespacedFoo: 'foo',
         }),
         ...mapGetters({
           foo: 'foo'
@@ -539,10 +539,10 @@ describe('connect', () => {
       })
     })('example', Component)
 
-    const { container } = mountContainer(namespaced_store, Container)
+    const { container } = mountContainer(namespacedStore, Container)
 
-    assert(container.namespaced_foo === 'foo')
-    assert(container.foo === 'parent_foo')
+    assert(container.namespacedFoo === 'foo')
+    assert(container.foo === 'parentFoo')
   })
 })
 
