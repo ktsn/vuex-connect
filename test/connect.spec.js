@@ -518,8 +518,7 @@ describe('connect', () => {
         ...mapState({
           foo: 'foo'
         })
-      }),
-      mixins: {}
+      })
     })('example', Component)
 
     const { container } = mountContainer(namespaced_store, Container)
@@ -537,8 +536,7 @@ describe('connect', () => {
         ...mapGetters({
           foo: 'foo'
         })
-      }),
-      mixins: {}
+      })
     })('example', Component)
 
     const { container } = mountContainer(namespaced_store, Container)
