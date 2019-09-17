@@ -93,22 +93,24 @@ export function createConnect<StateType = any, GettersType = any>(
         name = nameOrComponent
       }
 
-      if (typeof gettersToProps == 'function') {
-        var evaluatedGettersToProps = gettersToProps(mapGetters);
-      } else {
-        var evaluatedGettersToProps = mapGetters(gettersToProps);
-      }
-      if (typeof stateToProps == 'function') {
-        var evaluatedStateToProps = stateToProps(mapState);
-      } else {
-        var evaluatedStateToProps = mapState(stateToProps);
-      }
+      const evaluatedGettersToProps = typeof gettersToProps == 'function'
+        ? gettersToProps(mapGetters)
+        : mapGetters(gettersToProps);
+      const evaluatedStateToProps = typeof stateToProps == 'function'
+        ? stateToProps(mapState)
+        : mapState(stateToProps);
+      const evaluatedActionsToProps = typeof actionsToProps == 'function'
+        ? actionsToProps(mapActions)
+        : mapActions(actionsToProps);
+      const evaluatedMutationsToProps = typeof mutationsToProps == 'function'
+        ? mutationsToProps(mapMutations)
+        : mapMutations(mutationsToProps);
 
       const propKeys = keys(
         evaluatedStateToProps,
         evaluatedGettersToProps,
-        actionsToProps,
-        mutationsToProps,
+        evaluatedActionsToProps,
+        evaluatedMutationsToProps,
         methodsToProps
       )
 
@@ -129,8 +131,10 @@ export function createConnect<StateType = any, GettersType = any>(
         },
         computed: merge(evaluatedStateToProps, evaluatedGettersToProps),
         methods: merge(
-          mapActions(merge(actionsToProps, actionsToEvents)),
-          mapMutations(merge(mutationsToProps, mutationsToEvents)),
+          evaluatedActionsToProps,
+          evaluatedMutationsToProps,
+          mapActions(actionsToEvents),
+          mapMutations(mutationsToEvents),
           mapValues(merge(methodsToProps, methodsToEvents), bindStore)
         )
       }
