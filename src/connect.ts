@@ -29,14 +29,17 @@ export type MutationMapper =
   | string
   | ((this: Vue, commit: Commit, ...args: any[]) => any)
 
-export type StateMapperFunction = (mapper: Function) => (propName: string) => Function;
+export type StateMapperFunction = (mapper: typeof mapState) => Record<string, () => any>;
+export type GetterMapperFunction = (mapper: typeof mapGetters) => Record<string, () => any>; (propName: string) => Function;
+export type ActionMapperFunction = (mapper: typeof mapActions) => Record<string, () => any>; (propName: string) => Function;
+export type MutationMapperFunction = (mapper: typeof mapMutations) => Record<string, () => any>;
 
 export interface ConnectOptions<S, G> {
   stateToProps?: Record<string, StateMapper<S, G>> | string[] | StateMapperFunction
-  gettersToProps?: Record<string, string> | string[] | StateMapperFunction
-  actionsToProps?: Record<string, ActionMapper> | string[]
+  gettersToProps?: Record<string, string> | string[] | GetterMapperFunction
+  actionsToProps?: Record<string, ActionMapper> | string[] | ActionMapperFunction
   actionsToEvents?: Record<string, ActionMapper> | string[]
-  mutationsToProps?: Record<string, MutationMapper> | string[]
+  mutationsToProps?: Record<string, MutationMapper> | string[] | MutationMapperFunction
   mutationsToEvents?: Record<string, MutationMapper> | string[]
   lifecycle?: Record<string, Function>
 }
