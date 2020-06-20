@@ -42,7 +42,7 @@
     "@babel/preset-env": "^7.1.0",
     "@babel/preset-typescript": "^7.1.0",
     "babel-core": "^7.0.0-bridge.0",
-    "babel-jest": "^25.1.0",
+    "babel-jest": "^26.0.1",
     "babel-preset-power-assert": "^3.0.0",
     "eslint": "^6.3.0",
     "eslint-config-ktsn-typescript": "^2.0.0",
