@@ -15,23 +15,23 @@ describe('connect', () => {
     setup()
 
     state = {
-      foo: 'foo'
+      foo: 'foo',
     }
 
     getters = {
-      foo: state => state.foo
+      foo: (state) => state.foo,
     }
 
     actions = {
       [TEST]({ commit }, value) {
         commit('TEST', value + value)
-      }
+      },
     }
 
     mutations = {
       [TEST](state, value) {
         state.foo = value
-      }
+      },
     }
 
     store = new Vuex.Store({ state, getters, actions, mutations })
@@ -45,17 +45,17 @@ describe('connect', () => {
           h('div', { class: 'named-scoped-slot' }, [
             this.$scopedSlots.namedScopedSlot &&
               this.$scopedSlots.namedScopedSlot({
-                text: 'named'
-              })
+                text: 'named',
+              }),
           ]),
           h('div', { class: 'default-scoped-slot' }, [
             this.$scopedSlots.default &&
               this.$scopedSlots.default({
-                text: 'default'
-              })
-          ])
+                text: 'default',
+              }),
+          ]),
         ])
-      }
+      },
     }
 
     Component = Vue.extend(options)
@@ -86,7 +86,7 @@ describe('connect', () => {
   })
 
   it('sets registered name in options of component', () => {
-    const Component = { name: 'test', render: h => h() }
+    const Component = { name: 'test', render: (h) => h() }
     const Container = connect()(Component)
     const { wrapped } = mountContainer(store, Container)
 
@@ -100,11 +100,11 @@ describe('connect', () => {
     assert(wrapped.$options._componentTag === 'wrapped-anonymous-component')
   })
 
-  it('binds state mapping to component props', done => {
+  it('binds state mapping to component props', (done) => {
     const Container = connect({
       stateToProps: {
-        a: state => state.foo
-      }
+        a: (state) => state.foo,
+      },
     })('example', Component)
 
     const { wrapped } = mountContainer(store, Container)
@@ -120,11 +120,11 @@ describe('connect', () => {
     })
   })
 
-  it('binds getters to component props', done => {
+  it('binds getters to component props', (done) => {
     const Container = connect({
       gettersToProps: {
-        a: 'foo'
-      }
+        a: 'foo',
+      },
     })('example', Component)
 
     const { wrapped } = mountContainer(store, Container)
@@ -143,8 +143,8 @@ describe('connect', () => {
   it('binds actions to component props', () => {
     const Container = connect({
       actionsToProps: {
-        a: TEST
-      }
+        a: TEST,
+      },
     })('example', Component)
 
     const { wrapped } = mountContainer(store, Container)
@@ -158,8 +158,8 @@ describe('connect', () => {
     const Container = connect({
       actionsToEvents: {
         camelEvent: TEST,
-        'kebab-event': TEST
-      }
+        'kebab-event': TEST,
+      },
     })('example', Component)
 
     const { wrapped } = mountContainer(store, Container)
@@ -175,8 +175,8 @@ describe('connect', () => {
   it('binds mutations to component props', () => {
     const Container = connect({
       mutationsToProps: {
-        a: TEST
-      }
+        a: TEST,
+      },
     })('example', Component)
 
     const { wrapped } = mountContainer(store, Container)
@@ -190,8 +190,8 @@ describe('connect', () => {
     const Container = connect({
       mutationsToEvents: {
         camelEvent: TEST,
-        'kebab-event': TEST
-      }
+        'kebab-event': TEST,
+      },
     })('example', Component)
 
     const { wrapped } = mountContainer(store, Container)
@@ -210,8 +210,8 @@ describe('connect', () => {
         a: (_store, value) => {
           assert(_store === store)
           _store.commit(TEST, value)
-        }
-      }
+        },
+      },
     })('example', Component)
 
     const { wrapped } = mountContainer(store, Container)
@@ -230,8 +230,8 @@ describe('connect', () => {
     const Container = connect({
       methodsToEvents: {
         camelEvent: fn,
-        'kebab-event': fn
-      }
+        'kebab-event': fn,
+      },
     })('example', Component)
 
     const { wrapped } = mountContainer(store, Container)
@@ -244,10 +244,10 @@ describe('connect', () => {
     assert(store.state.foo === 'baz')
   })
 
-  it('allows array style binding', done => {
+  it('allows array style binding', (done) => {
     const Container = connect({
       gettersToProps: ['foo'],
-      mutationsToProps: [TEST]
+      mutationsToProps: [TEST],
     })('example', Component)
 
     const { wrapped } = mountContainer(store, Container)
@@ -261,12 +261,12 @@ describe('connect', () => {
     })
   })
 
-  it('injects lifecycle hooks', done => {
+  it('injects lifecycle hooks', (done) => {
     const counts = {}
     const lifecycle = {}
 
     function _assert(name) {
-      return function(_store) {
+      return function (_store) {
         assert(_store === store)
         assert(this instanceof C)
         counts[name] += 1
@@ -283,14 +283,14 @@ describe('connect', () => {
       'beforeUpdate',
       'updated',
       'activated',
-      'deactivated'
-    ].forEach(key => {
+      'deactivated',
+    ].forEach((key) => {
       counts[key] = 0
       lifecycle[key] = _assert(key)
     })
 
     const C = connect({
-      lifecycle
+      lifecycle,
     })('example', Component)
 
     const { root, container } = mountContainer(store, C)
@@ -311,7 +311,7 @@ describe('connect', () => {
           beforeUpdate: 1,
           updated: 1,
           activated: 1,
-          deactivated: 1
+          deactivated: 1,
         })
         done()
       })
@@ -321,15 +321,15 @@ describe('connect', () => {
   it('passes container props to component props if no getters and actions are specified', () => {
     const C = connect({
       gettersToProps: {
-        a: 'foo'
-      }
+        a: 'foo',
+      },
     })('example', Component)
 
     const { container } = mountContainer(store, C, {
       props: {
         a: 1,
-        b: 'test'
-      }
+        b: 'test',
+      },
     })
 
     assert(container.a === 'foo') // should not override container props
@@ -339,11 +339,11 @@ describe('connect', () => {
   it('accepts component options for wrapped component', () => {
     const C = connect({
       gettersToProps: {
-        a: 'foo'
+        a: 'foo',
       },
       actionsToProps: {
-        b: TEST
-      }
+        b: TEST,
+      },
     })('example', options)
 
     const { container } = mountContainer(store, C)
@@ -357,16 +357,16 @@ describe('connect', () => {
     const C = connect()('example', options)
 
     const { wrapped } = mountContainer(store, C, {
-      slots: h => {
+      slots: (h) => {
         return [
           h('div', ['default-slot']),
-          h('div', { slot: 'namedSlot' }, ['named-slot'])
+          h('div', { slot: 'namedSlot' }, ['named-slot']),
         ]
       },
       scopedSlots: {
         default: (h, props) => h('div', [props.text + '-scoped-slot']),
-        namedScopedSlot: (h, props) => h('div', [props.text + '-scoped-slot'])
-      }
+        namedScopedSlot: (h, props) => h('div', [props.text + '-scoped-slot']),
+      },
     })
 
     function query(selector) {
@@ -384,15 +384,15 @@ describe('connect', () => {
 
     const C = connect({
       mutationsToEvents: {
-        bar: TEST
-      }
+        bar: TEST,
+      },
     })('example', options)
 
     const { wrapped } = mountContainer(store, C, {
       on: {
         foo,
-        bar
-      }
+        bar,
+      },
     })
 
     wrapped.$emit('foo', 'foo')
@@ -408,26 +408,26 @@ describe('connect', () => {
       props: ['foo', 'bar'],
       render(h) {
         return h('div', [this.foo + ',' + this.bar])
-      }
+      },
     }
 
     const C = connect({
       stateToProps: {
-        foo: 'foo'
-      }
+        foo: 'foo',
+      },
     })('example', options)
 
     const { wrapped } = mountContainer(store, C, {
       props: {
-        bar: 'bar'
-      }
+        bar: 'bar',
+      },
     })
     assert(wrapped.$el.textContent === 'foo,bar')
   })
 
   it('should handle the props definition from mixins', () => {
     const mixin = {
-      props: ['foo']
+      props: ['foo'],
     }
 
     const options = {
@@ -435,7 +435,7 @@ describe('connect', () => {
       props: ['bar'],
       render(h) {
         return h('div', [this.foo + ',' + this.bar])
-      }
+      },
     }
 
     const C = connect()(options)
@@ -443,15 +443,15 @@ describe('connect', () => {
     const { wrapped } = mountContainer(store, C, {
       props: {
         foo: 'foo value',
-        bar: 'bar value'
-      }
+        bar: 'bar value',
+      },
     })
     assert(wrapped.$el.textContent === 'foo value,bar value')
   })
 
   it('should handle the props definition from extends option', () => {
     const superComp = {
-      props: ['foo']
+      props: ['foo'],
     }
 
     const options = {
@@ -459,7 +459,7 @@ describe('connect', () => {
       props: ['bar'],
       render(h) {
         return h('div', [this.foo + ',' + this.bar])
-      }
+      },
     }
 
     const C = connect()(options)
@@ -467,22 +467,22 @@ describe('connect', () => {
     const { wrapped } = mountContainer(store, C, {
       props: {
         foo: 'foo value',
-        bar: 'bar value'
-      }
+        bar: 'bar value',
+      },
     })
     assert(wrapped.$el.textContent === 'foo value,bar value')
   })
 
   it('should handle the props definition on super component', () => {
     const Super = Vue.extend({
-      props: ['foo']
+      props: ['foo'],
     })
 
     const Comp = Super.extend({
       props: ['bar'],
       render(h) {
         return h('div', [this.foo + ',' + this.bar])
-      }
+      },
     })
 
     const C = connect()(Comp)
@@ -490,8 +490,8 @@ describe('connect', () => {
     const { wrapped } = mountContainer(store, C, {
       props: {
         foo: 'foo value',
-        bar: 'bar value'
-      }
+        bar: 'bar value',
+      },
     })
     assert(wrapped.$el.textContent === 'foo value,bar value')
   })
@@ -501,7 +501,7 @@ function mountContainer(store, Container, options = {}) {
   const root = new Vue({
     el: '#app',
     data: {
-      show: true
+      show: true,
     },
     store,
     render(h) {
@@ -509,8 +509,8 @@ function mountContainer(store, Container, options = {}) {
 
       const scopedSlots = {}
       if (options.scopedSlots) {
-        Object.keys(options.scopedSlots).forEach(key => {
-          scopedSlots[key] = props => options.scopedSlots[key](h, props)
+        Object.keys(options.scopedSlots).forEach((key) => {
+          scopedSlots[key] = (props) => options.scopedSlots[key](h, props)
         })
       }
 
@@ -521,16 +521,16 @@ function mountContainer(store, Container, options = {}) {
             {
               props: options.props,
               on: options.on,
-              scopedSlots
+              scopedSlots,
             },
             slots
-          )
+          ),
       ])
-    }
+    },
   })
   return {
     root,
     container: root.$children[0],
-    wrapped: root.$children[0].$children[0]
+    wrapped: root.$children[0].$children[0],
   }
 }

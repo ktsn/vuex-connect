@@ -18,55 +18,55 @@ const name = 'VuexConnect'
 
 const globals = {
   vue: 'Vue',
-  vuex: 'Vuex'
+  vuex: 'Vuex',
 }
 
 const config = {
   input: 'lib/index.js',
   plugins: [],
-  external: ['vue', 'vuex']
+  external: ['vue', 'vuex'],
 }
 
 mkdirIfNotExists('dist')
 
 rollup(config)
-  .then(bundle => {
+  .then((bundle) => {
     return write(bundle, `dist/${meta.name}.common.js`, {
       format: 'cjs',
       banner,
-      globals
+      globals,
     })
   })
   .then(() => rollup(config))
-  .then(bundle => {
+  .then((bundle) => {
     return write(bundle, `dist/${meta.name}.esm.js`, {
       format: 'es',
       banner,
-      globals
+      globals,
     })
   })
   .then(() =>
     rollup(
       addPlugins(config, [
         replace({
-          'process.env.NODE_ENV': JSON.stringify('development')
-        })
+          'process.env.NODE_ENV': JSON.stringify('development'),
+        }),
       ])
     )
   )
-  .then(bundle =>
+  .then((bundle) =>
     write(bundle, `dist/${meta.name}.js`, {
       format: 'umd',
       banner,
       name,
-      globals
+      globals,
     })
   )
   .then(() =>
     rollup(
       addPlugins(config, [
         replace({
-          'process.env.NODE_ENV': JSON.stringify('production')
+          'process.env.NODE_ENV': JSON.stringify('production'),
         }),
         uglify({
           output: {
@@ -76,28 +76,28 @@ rollup(config)
               if (type === 'comment2') {
                 return /^!/i.test(text)
               }
-            }
-          }
-        })
+            },
+          },
+        }),
       ])
     )
   )
-  .then(bundle =>
+  .then((bundle) =>
     write(bundle, `dist/${meta.name}.min.js`, {
       format: 'umd',
       banner,
       name,
-      globals
+      globals,
     })
   )
-  .catch(error => {
+  .catch((error) => {
     console.error(error)
     process.exit(1)
   })
 
 function addPlugins(config, plugins) {
   return Object.assign({}, config, {
-    plugins: config.plugins.concat(plugins)
+    plugins: config.plugins.concat(plugins),
   })
 }
 
@@ -112,7 +112,7 @@ function mkdirIfNotExists(dirPath) {
 function write(bundle, dest, config) {
   return bundle.generate(config).then(({ output: [{ code }] }) => {
     return new Promise((resolve, reject) => {
-      fs.writeFile(dest, code, error => {
+      fs.writeFile(dest, code, (error) => {
         if (error) return reject(error)
         console.log(green(dest) + ' ' + size(code))
         resolve()
