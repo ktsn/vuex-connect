@@ -11,7 +11,7 @@ describe('utils', () => {
         a: 2,
         b: 1,
         c: 2,
-        d: 1
+        d: 1,
       })
       assert.deepEqual(a, { a: 1, b: 1 }) // should not mutate
       assert(a !== actual) // should create new object
@@ -40,7 +40,7 @@ describe('utils', () => {
     it('flatten the given object', () => {
       const data = {
         default: 'a',
-        foo: 'b'
+        foo: 'b',
       }
 
       assert.deepEqual(flattenObject(data), ['a', 'b'])
@@ -49,7 +49,7 @@ describe('utils', () => {
 
   describe('mapValues', () => {
     it('maps the values of an object', () => {
-      const f = n => n + 1
+      const f = (n) => n + 1
       const a = { a: 1, b: 2, c: 3 }
       const actual = mapValues(a, f)
 

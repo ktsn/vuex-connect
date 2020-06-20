@@ -6,8 +6,8 @@ import { createConnect } from '../src'
 describe('createConnect', () => {
   const store = new Vuex.Store({
     state: {
-      value: 'foobar'
-    }
+      value: 'foobar',
+    },
   })
 
   it('creates connect helper', () => {
@@ -15,9 +15,9 @@ describe('createConnect', () => {
     assert(typeof connect === 'function')
   })
 
-  it('transforms component options with lifecycle options', done => {
+  it('transforms component options with lifecycle options', (done) => {
     const connect = createConnect((options, lifecycle) => {
-      options.foo = function(arg) {
+      options.foo = function (arg) {
         lifecycle.foo.call(this, this.$store, arg)
       }
     })
@@ -29,12 +29,12 @@ describe('createConnect', () => {
           assert(store instanceof Vuex.Store)
           assert(arg === 'test')
           done()
-        }
-      }
+        },
+      },
     })(Vue.extend({}))
 
     const c = new Comp({
-      store
+      store,
     })
     c.$options.foo.call(c, 'test')
   })
