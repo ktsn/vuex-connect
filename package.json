@@ -44,7 +44,7 @@
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^26.0.1",
     "babel-preset-power-assert": "^3.0.0",
-    "eslint": "^6.3.0",
+    "eslint": "^7.3.0",
     "eslint-config-ktsn-typescript": "^2.0.0",
     "jest": "^26.0.1",
     "jest-config-ktsn": "^0.2.0",
