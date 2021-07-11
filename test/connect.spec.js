@@ -10,6 +10,8 @@ import Vuex from 'vuex'
 describe('connect', () => {
   const TEST = 'TEST'
   let state, getters, actions, mutations, store, options, Component
+  let namespacedState, namespacedGetters, namespacedMutations
+  let namespacedActions, namespacedStore
 
   beforeEach(() => {
     setup()
@@ -35,6 +37,30 @@ describe('connect', () => {
     }
 
     store = new Vuex.Store({ state, getters, actions, mutations })
+
+    namespacedState = {
+      foo: 'parentFoo'
+    }
+    namespacedGetters = {
+      foo: state => state.foo
+    }
+    namespacedActions = {
+      [TEST]: ({ commit }, value) => {
+        commit(TEST, value * value);
+      }
+    }
+    namespacedMutations = {
+      [TEST]: (state, value) => {
+        state.foo = `parent ${value}`;
+      }
+    }
+    namespacedStore = new Vuex.Store({
+      modules: { innerFoo: { namespaced: true, state, getters, actions, mutations } },
+      getters: namespacedGetters,
+      state: namespacedState,
+      actions: namespacedActions,
+      mutations: namespacedMutations
+    })
 
     options = {
       props: ['a', 'b', 'foo', TEST],
@@ -495,6 +521,109 @@ describe('connect', () => {
     })
     assert(wrapped.$el.textContent === 'foo value,bar value')
   })
+
+  it('handles namespaced state in stateToProps', () => {
+    const Container = connect({
+      stateToProps: (mapState) => ({
+        ...mapState('innerFoo', {
+          innerFoo: 'foo',
+        }),
+        ...mapState({
+          parentFoo: 'foo'
+        })
+      })
+    })('example', Component)
+
+    const { container } = mountContainer(namespacedStore, Container)
+
+    assert(container.innerFoo === 'foo')
+    assert(container.parentFoo === 'parentFoo')
+  })
+
+  it('handles namespaced getters in gettersToProps', () => {
+    const Container = connect({
+      gettersToProps: (mapGetters) => ({
+        ...mapGetters('innerFoo', {
+          innerFoo: 'foo',
+        }),
+        ...mapGetters({
+          parentFoo: 'foo'
+        })
+      })
+    })('example', Component)
+
+    const { container } = mountContainer(namespacedStore, Container)
+
+    assert(container.innerFoo === 'foo')
+    assert(container.parentFoo === 'parentFoo')
+  })
+
+  it('handles namespaced actions in actionsToProps', () => {
+    const Container = connect({
+      gettersToProps: (mapGetters) => ({
+        ...mapGetters('innerFoo', {
+          innerFoo: 'foo',
+        }),
+        ...mapGetters({
+          parentFoo: 'foo'
+        })
+      }),
+      actionsToProps: (mapActions) => ({
+        ...mapActions('innerFoo', {
+          innerFooAction: TEST,
+        }),
+        ...mapActions({
+          parentFooAction: TEST
+        }),
+      }),
+    })('example', Component)
+
+    const { container } = mountContainer(namespacedStore, Container)
+
+    let initialInnerFoo = container.innerFoo;
+    container.parentFooAction(3)
+    assert(container.parentFoo === 'parent 9')
+    assert(container.innerFoo === initialInnerFoo)
+
+    let initialParentFoo = container.parentFoo;
+    container.innerFooAction(3)
+    assert(container.innerFoo === 6)
+    assert(container.parentFoo === initialParentFoo)
+  })
+
+  it('handles namespaced mutations in mutationsToProps', () => {
+    const Container = connect({
+      gettersToProps: (mapGetters) => ({
+        ...mapGetters('innerFoo', {
+          innerFoo: 'foo',
+        }),
+        ...mapGetters({
+          parentFoo: 'foo'
+        })
+      }),
+      mutationsToProps: (mapMutations) => ({
+        ...mapMutations('innerFoo', {
+          innerFooMutation: TEST,
+        }),
+        ...mapMutations({
+          parentFooMutation: TEST
+        }),
+      }),
+    })('example', Component)
+
+    const { container } = mountContainer(namespacedStore, Container)
+
+    let initialInnerFoo = container.innerFoo;
+    container.parentFooMutation(3)
+    assert(container.parentFoo === 'parent 3')
+    assert(container.innerFoo === initialInnerFoo)
+
+    let initialParentFoo = container.parentFoo;
+    container.innerFooMutation(3)
+    assert(container.innerFoo === 3)
+    assert(container.parentFoo === initialParentFoo)
+  })
+
 })
 
 function mountContainer(store, Container, options = {}) {

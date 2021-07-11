@@ -81,6 +81,55 @@ export default connect({
 })('hello', HelloComponent)
 ```
 
+You can use the visitor pattern in `gettersToProps`, `stateToProps`,
+`actionsToProps`, and `mutationsToProps` to accept `mapGetters`,
+`mapState`, `mapActions`, and `mapMutations` respectively (to utilize
+Vuex's full API). This can allow you to use namespaced stores.
+
+``` js
+
+import { connect } from 'vuex-connect'
+import HelloComponent from './hello-component'
+
+export default connect({
+  stateToProps: (mapState) => ({
+    ...mapState('someNestedStore', {
+      nestedMessage: 'nestedValue',
+    }),
+    ...mapGetters({
+      message: 'inputMessage'
+    })
+  }),
+  gettersToProps: (mapGetters) => ({
+    ...mapGetters('someNestedStore', {
+      nestedMessage: 'nestedGetter',
+    }),
+    ...mapGetters({
+      encryptedMessage: 'encryptedInputMessage'
+    })
+  }),
+  mutationsToProps: (mapMutations) => ({
+    ...mapMutations('innerFoo', {
+      innerFooMutation: 'foo',
+    }),
+    ...mapMutations({
+      parentFooMutation: 'foo'
+    }),
+  }),
+  actionsToProps: (mapActions) => ({
+    ...mapActions('innerFoo', {
+      innerFooAction: 'foo',
+    }),
+    ...mapActions({
+      parentFooAction: 'foo'
+    }),
+  }),
+})('hello', HelloComponent)
+
+```
+
+
+
 ## API
 
 ### `connect(options) -> (componentName, Component) -> WrapperComponent`
