@@ -29,12 +29,17 @@ export type MutationMapper =
   | string
   | ((this: Vue, commit: Commit, ...args: any[]) => any)
 
+export type StateMapperFunction = (mapper: typeof mapState) => Record<string, () => any>;
+export type GetterMapperFunction = (mapper: typeof mapGetters) => Record<string, () => any>; (propName: string) => Function;
+export type ActionMapperFunction = (mapper: typeof mapActions) => Record<string, () => any>; (propName: string) => Function;
+export type MutationMapperFunction = (mapper: typeof mapMutations) => Record<string, () => any>;
+
 export interface ConnectOptions<S, G> {
-  stateToProps?: Record<string, StateMapper<S, G>> | string[]
-  gettersToProps?: Record<string, string> | string[]
-  actionsToProps?: Record<string, ActionMapper> | string[]
+  stateToProps?: Record<string, StateMapper<S, G>> | string[] | StateMapperFunction
+  gettersToProps?: Record<string, string> | string[] | GetterMapperFunction
+  actionsToProps?: Record<string, ActionMapper> | string[] | ActionMapperFunction
   actionsToEvents?: Record<string, ActionMapper> | string[]
-  mutationsToProps?: Record<string, MutationMapper> | string[]
+  mutationsToProps?: Record<string, MutationMapper> | string[] | MutationMapperFunction
   mutationsToEvents?: Record<string, MutationMapper> | string[]
   lifecycle?: Record<string, Function>
 }
@@ -88,11 +93,24 @@ export function createConnect<StateType = any, GettersType = any>(
         name = nameOrComponent
       }
 
+      const evaluatedGettersToProps = typeof gettersToProps == 'function'
+        ? gettersToProps(mapGetters)
+        : mapGetters(gettersToProps);
+      const evaluatedStateToProps = typeof stateToProps == 'function'
+        ? stateToProps(mapState)
+        : mapState(stateToProps);
+      const evaluatedActionsToProps = typeof actionsToProps == 'function'
+        ? actionsToProps(mapActions)
+        : mapActions(actionsToProps);
+      const evaluatedMutationsToProps = typeof mutationsToProps == 'function'
+        ? mutationsToProps(mapMutations)
+        : mapMutations(mutationsToProps);
+
       const propKeys = keys(
-        stateToProps,
-        gettersToProps,
-        actionsToProps,
-        mutationsToProps,
+        evaluatedStateToProps,
+        evaluatedGettersToProps,
+        evaluatedActionsToProps,
+        evaluatedMutationsToProps,
         methodsToProps
       )
 
@@ -111,10 +129,12 @@ export function createConnect<StateType = any, GettersType = any>(
         components: {
           [name]: Component
         },
-        computed: merge(mapState(stateToProps), mapGetters(gettersToProps)),
+        computed: merge(evaluatedStateToProps, evaluatedGettersToProps),
         methods: merge(
-          mapActions(merge(actionsToProps, actionsToEvents)),
-          mapMutations(merge(mutationsToProps, mutationsToEvents)),
+          evaluatedActionsToProps,
+          evaluatedMutationsToProps,
+          mapActions(actionsToEvents),
+          mapMutations(mutationsToEvents),
           mapValues(merge(methodsToProps, methodsToEvents), bindStore)
         )
       }
