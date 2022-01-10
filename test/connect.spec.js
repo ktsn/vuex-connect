@@ -495,6 +495,35 @@ describe('connect', () => {
     })
     assert(wrapped.$el.textContent === 'foo value,bar value')
   })
+
+  it('should pass down the $attrs to its child', () => {
+    const NestedChild = Vue.extend({
+      props: ['foo'],
+      render(h) {
+        return h('div', [this.foo])
+      },
+    })
+
+    const Child = connect()({
+      render(h) {
+        return h(NestedChild, { attrs: this.$attrs })
+      },
+    })
+
+    const Comp = {
+      render(h) {
+        return h(Child, {
+          attrs: {
+            foo: 'foo value',
+          },
+        })
+      },
+    }
+
+    const { wrapped } = mountContainer(store, Comp)
+
+    assert(wrapped.$el.textContent === 'foo value')
+  })
 })
 
 function mountContainer(store, Container, options = {}) {

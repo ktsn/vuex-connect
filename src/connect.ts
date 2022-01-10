@@ -149,6 +149,7 @@ function insertRenderer(
       name,
       {
         props: pick(this, propKeys),
+        attrs: {...this.$attrs},
         on: mergeListeners(pick(this, eventKeys), this.$listeners || {}),
         scopedSlots: this.$scopedSlots
       },
